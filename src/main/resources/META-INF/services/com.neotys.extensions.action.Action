@@ -1,0 +1,6 @@
+com.neotys.rte.TerminalEmulator.OpenSessionAction
+com.neotys.rte.TerminalEmulator.CloseSessionAction
+com.neotys.rte.TerminalEmulator.SendSpecialKeyAction
+com.neotys.rte.TerminalEmulator.SendTextAction
+com.neotys.rte.TerminalEmulator.SendTextAndWaitForAction
+com.neotys.rte.TerminalEmulator.SendSpecialKeyAndWaitForAction
