@@ -4,3 +4,4 @@ com.neotys.rte.TerminalEmulator.SendSpecialKeyAction
 com.neotys.rte.TerminalEmulator.SendTextAction
 com.neotys.rte.TerminalEmulator.SendTextAndWaitForAction
 com.neotys.rte.TerminalEmulator.SendSpecialKeyAndWaitForAction
+com.neotys.rte.TerminalEmulator.ReadActionUntil

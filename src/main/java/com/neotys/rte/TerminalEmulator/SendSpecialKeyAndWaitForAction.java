@@ -83,6 +83,14 @@ public class SendSpecialKeyAndWaitForAction implements Action {
                 .append("\t\tVT : Vertical TAB \n")
                 .append("\t\tESC : Escape character \n")
                 .append("\t\tDEL : Delete character \n")
+                .append("\t\tCTRLA : CTRL A \n")
+                .append("\t\tCTRLB : CTRL A \n")
+                .append("\t\t.......\n")
+                .append("\t\tCTRLZ : CTRL Z \n")
+                .append("\t\tUP : up narrow \n")
+                .append("\t\tDOWN : down narrow \n")
+                .append("\t\tRIGHT : rigth narrow \n")
+                .append("\t\tLEFT : left narrow \n")
                 .append("Check  :  Test to wait for \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n");
         return description.toString();
