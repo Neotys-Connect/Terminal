@@ -92,10 +92,14 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        output=TerminalUtils.SendSpecialKeys(channel,Key,TimeOut);
+                        output=TerminalUtils.SendSpecialKeysAndWaitFor(channel,Key,TimeOut,Check);
                         appendLineToStringBuilder(responseBuilder, output.toString());
-
                         sampleResult.sampleEnd();
+
+                        if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
+                            return getErrorResult(context, sampleResult, "Patern not found: the patern was not found "
+                                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);
+
                     }
                     catch (Exception e) {
                         return getErrorResult(context, sampleResult, "Technical Error:  "

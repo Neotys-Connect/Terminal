@@ -167,6 +167,13 @@ public class TerminalUtils {
         return result;
     }
 
+    public static boolean IsPaternInStringbuilder(String Check,StringBuilder content)
+    {
+        if(content.toString().contains(Check))
+            return true;
+        else
+            return false;
+    }
 
     public static StringBuilder SendKeysAndWait(Channel channel,byte Text,int timeout,String patern) throws IOException
     {

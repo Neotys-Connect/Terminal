@@ -91,6 +91,12 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
                         appendLineToStringBuilder(responseBuilder, output.toString());
 
                         sampleResult.sampleEnd();
+
+                        if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
+                            return getErrorResult(context, sampleResult, "Patern not found: the patern was not found "
+                                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);
+
+
                     }
                     catch (Exception e) {
                         return getErrorResult(context, sampleResult, "Technical Error:  "
