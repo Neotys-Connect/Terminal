@@ -5,3 +5,10 @@ com.neotys.rte.TerminalEmulator.SendTextAction
 com.neotys.rte.TerminalEmulator.SendTextAndWaitForAction
 com.neotys.rte.TerminalEmulator.SendSpecialKeyAndWaitForAction
 com.neotys.rte.TerminalEmulator.ReadActionUntil
+com.neotys.rte.TerminalEmulator.SendTelnetSpecialKeyAction
+com.neotys.rte.TerminalEmulator.SendTelnetSpecialKeyAndWaitForAction
+com.neotys.rte.TerminalEmulator.SendTelnetTextAction
+com.neotys.rte.TerminalEmulator.SendTelnetTextAndWaitForAction
+com.neotys.rte.TerminalEmulator.ReadTelnetActionUntil
+com.neotys.rte.TerminalEmulator.OpenTelnetSessionAction
+com.neotys.rte.TerminalEmulator.CloseTelnetSessionAction

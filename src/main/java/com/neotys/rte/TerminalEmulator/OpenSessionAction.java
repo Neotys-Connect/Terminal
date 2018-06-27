@@ -70,7 +70,7 @@ public final class OpenSessionAction implements Action{
 	public String getDescription() {
 		final StringBuilder description = new StringBuilder();
 		// TODO Add description
-		description.append("CreateSession Will open the ssh connection to the remote Xterm Server.\n")
+		description.append("OpenSession Will open the ssh connection to the remote Xterm Server.\n")
 				.append("The parameters are : \n")
 				.append("HOST  : host or ip of the server\n")
 				.append("Port  : ssh port \n")

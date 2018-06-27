@@ -1,9 +1,10 @@
 package com.neotys.rte.TerminalEmulator;
 
 import com.google.common.base.Optional;
+import com.neotys.extensions.action.Action;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
-import com.neotys.extensions.action.Action;
+
 import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,10 +15,10 @@ import java.util.ResourceBundle;
 /**
  * Created by hrexed on 26/04/18.
  */
-public final class SendTextAction implements Action {
+public final class SendTelnetTextAction implements Action {
     private static final String BUNDLE_NAME = "com.neotys.rte.TerminalEmulator.bundle";
-    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameSendKey");
-    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
+    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameSendTelnetKey");
+    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPathTelnet");
     public static final String HOST = "HOST";
     public static final String TEXT = "TEXT";
     public static final String TimeOut = "TimeOut";
@@ -26,7 +27,7 @@ public final class SendTextAction implements Action {
 
     @Override
     public String getType() {
-        return "SendKey";
+        return "SendTelnetKey";
     }
 
     @Override
@@ -50,7 +51,7 @@ public final class SendTextAction implements Action {
 
     @Override
     public Class<? extends ActionEngine> getEngineClass() {
-        return SendTextActionEngine.class;
+        return SendTelnetTextActionEngine.class;
     }
 
     @Override
@@ -68,7 +69,7 @@ public final class SendTextAction implements Action {
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("SendKey Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("SendTelnetKey Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
                 .append("TEXT  : text that you would like to send \n")

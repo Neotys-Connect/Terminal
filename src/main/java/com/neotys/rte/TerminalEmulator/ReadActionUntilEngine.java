@@ -1,13 +1,13 @@
 package com.neotys.rte.TerminalEmulator;
 
+import java.util.List;
+
 import com.google.common.base.Strings;
-import com.jcraft.jsch.Channel;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
-
-import java.util.List;
+import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
 
 /**
  * Created by hrexed on 11/05/18.
@@ -22,8 +22,6 @@ public class ReadActionUntilEngine implements ActionEngine {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        StringBuilder output;
-        Channel channel;
 
         //sess=null;
         for(ActionParameter parameter:parameters) {
@@ -72,7 +70,7 @@ public class ReadActionUntilEngine implements ActionEngine {
         try {
 
 
-            channel = (Channel)context.getCurrentVirtualUser().get(Host+"Channel");
+            final SSHChannel channel = (SSHChannel)context.getCurrentVirtualUser().get(Host+"SSHChannel");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -80,16 +78,19 @@ public class ReadActionUntilEngine implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        output=TerminalUtils.ReadUntil(channel,Check,TimeOut);
-                        appendLineToStringBuilder(responseBuilder, output.toString());
-
+                        final String output = channel.readUntil(Check, TimeOut);
                         sampleResult.sampleEnd();
+                        appendLineToStringBuilder(responseBuilder, output);
 
-                        if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
+                        /*if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
                             return getErrorResult(context, sampleResult, "Patern not found: the patern was not found "
-                                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);
+                                    + ReadActionUntil.CHECK + ".", null);*/
 
 
+                    }
+                    catch (RTETimeOutException e) {
+                        return getErrorResult(context, sampleResult, "TimeOut Exception:  "
+                                , null);
                     }
                     catch (Exception e) {
                         return getErrorResult(context, sampleResult, "Technical Error:  "

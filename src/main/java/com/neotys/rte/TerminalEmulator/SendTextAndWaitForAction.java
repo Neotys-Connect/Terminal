@@ -70,7 +70,7 @@ public class SendTextAndWaitForAction implements com.neotys.extensions.action.Ac
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("CreateSession Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("SendKeyAndWaitFor Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
                 .append("TEXT  : text that you would like to send \n")

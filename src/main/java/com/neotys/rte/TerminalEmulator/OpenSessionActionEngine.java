@@ -3,11 +3,12 @@ package com.neotys.rte.TerminalEmulator;
 import java.util.List;
 
 import com.google.common.base.Strings;
-import com.jcraft.jsch.Channel;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
+import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
+import com.neotys.rte.TerminalEmulator.ssh.SSHSession;
 
 public final class OpenSessionActionEngine implements ActionEngine {
 	String Host=null;
@@ -95,7 +96,8 @@ public final class OpenSessionActionEngine implements ActionEngine {
 		try {
 			sampleResult.sampleStart();
 
-			Channel channel = TerminalUtils.OpenSession(Host, port, Username, Password, TimeOut);
+			final SSHSession session = SSHSession.of(Host, port, Username, Password, TimeOut);
+			final SSHChannel channel = session.createChannel();
 
 			if(channel.isConnected())
 				appendLineToStringBuilder(responseBuilder, "Session open on "+Host);
@@ -103,9 +105,8 @@ public final class OpenSessionActionEngine implements ActionEngine {
 				return getErrorResult(context, sampleResult, "Session Error: Unable to open the session "
 						, null);
 
-
 			sampleResult.sampleEnd();
-			context.getCurrentVirtualUser().put( Host+"Channel",channel);
+			context.getCurrentVirtualUser().put(Host+"SSHChannel", channel);
 		}
 		catch (Exception e)
 		{

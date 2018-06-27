@@ -69,7 +69,7 @@ public final class SendSpecialKeyAction implements Action {
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("CreateSession Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("SendSpecialKey Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
                 .append("KEY  :  Send special KeyBoard keys : \n")

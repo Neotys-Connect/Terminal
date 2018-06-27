@@ -16,44 +16,45 @@ public class TerminalUtils {
     private static OutputStream out;
     private static InputStream in;
     private final static int MAX_THREAD_SLEEP=200;
-    private final static String CR="CR";
-    private final static String ESC="ESC";
-    private final static String DEL="DEL";
-    private final static String BS="BS";
-    private final static String HT="HT";
-    private final static String LF="LF";
-    private final static String VT="VT";
-    private final static String CTRLA="CTRLA";
-    private final static String CTRLB="CTRLB";
-    private final static String CTRLC="CTRLC";
-    private final static String CTRLD="CTRLD";
-    private final static String CTRLE="CTRLE";
-    private final static String CTRLF="CTRLF";
-    private final static String CTRLG="CTRLG";
-    private final static String CTRLH="CTRLH";
-    private final static String CTRLI="CTRLI";
-    private final static String CTRLJ="CTRLJ";
-    private final static String CTRLK="CTRLK";
-    private final static String CTRLL="CTRLL";
-    private final static String CTRLM="CTRLM";
-    private final static String CTRLN="CTRLN";
-    private final static String CTRLO="CTRLO";
-    private final static String CTRLP="CTRLP";
-    private final static String CTRLQ="CTRLQ";
-    private final static String CTRLR="CTRLR";
-    private final static String CTRLS="CTRLS";
-    private final static String CTRLT="CTRLT";
-    private final static String CTRLU="CTRLU";
-    private final static String CTRLV="CTRLV";
-    private final static String CTRLW="CTRLW";
-    private final static String CTRLX="CTRLX";
-    private final static String CTRLY="CTRLY";
-    private final static String CTRLZ="CTRLZ";
-    private final static String UP="UP";
-    private final static String DOWN="DOWN";
-    private final static String LEFT="LEFT";
-    private final static String RIGHT="RIGHT";
-
+    public final static String CR="CR";
+    public final static String ESC="ESC";
+    public final static String DEL="DEL";
+    public final static String BS="BS";
+    public final static String HT="HT";
+    public final static String LF="LF";
+    public final static String VT="VT";
+    public final static String CTRLA="CTRLA";
+    public final static String CTRLB="CTRLB";
+    public final static String CTRLC="CTRLC";
+    public final static String CTRLD="CTRLD";
+    public final static String CTRLE="CTRLE";
+    public final static String CTRLF="CTRLF";
+    public final static String CTRLG="CTRLG";
+    public final static String CTRLH="CTRLH";
+    public final static String CTRLI="CTRLI";
+    public final static String CTRLJ="CTRLJ";
+    public final static String CTRLK="CTRLK";
+    public final static String CTRLL="CTRLL";
+    public final static String CTRLM="CTRLM";
+    public final static String CTRLN="CTRLN";
+    public final static String CTRLO="CTRLO";
+    public final static String CTRLP="CTRLP";
+    public final static String CTRLQ="CTRLQ";
+    public final static String CTRLR="CTRLR";
+    public final static String CTRLS="CTRLS";
+    public final static String CTRLT="CTRLT";
+    public final static String CTRLU="CTRLU";
+    public final static String CTRLV="CTRLV";
+    public final static String CTRLW="CTRLW";
+    public final static String CTRLX="CTRLX";
+    public final static String CTRLY="CTRLY";
+    public final static String CTRLZ="CTRLZ";
+    public final static String UP="UP";
+    public final static String DOWN="DOWN";
+    public final static String LEFT="LEFT";
+    public final static String RIGHT="RIGHT";
+    private static final int MAX_RETRY=6;
+    private static final int THREAD_SLEEP=250;
     public static String[] SpecialKeys={CR,ESC,DEL,BS,HT,LF,VT,CTRLA,CTRLB,CTRLC,CTRLD,CTRLE,CTRLF,CTRLG,CTRLH,CTRLI,CTRLJ,CTRLH,CTRLM,CTRLN,CTRLO,CTRLP,CTRLQ,CTRLR,CTRLS,CTRLT,CTRLU,CTRLV,CTRLW,CTRLX,CTRLY,CTRLZ,UP,DOWN,LEFT,RIGHT};
     static Channel channel;
 
@@ -68,7 +69,7 @@ public class TerminalUtils {
         }
         return false;
     }
-    private static String CleanOutput(String line)
+    public static String CleanOutput(String line)
     {
         line=line.replaceAll("\u001B\\[[\\d;]*[^\\d;]","");
         line=line.replaceAll("1h\u001B=","");
@@ -79,24 +80,69 @@ public class TerminalUtils {
 
         return line;
     }
-    private static StringBuilder  readChannelOutput(Channel channel,InputStream in,int timeout) throws IOException {
+    private static StringBuilder  readChannelOutput(Channel channel,InputStream in,int timeout) throws IOException, RTETimeOutException {
         byte[] buffer = new byte[1024];
         StringBuilder result= new StringBuilder();
         long t= System.currentTimeMillis();
         long end = t+(timeout*1000);
 
         String line = "";
-        while(System.currentTimeMillis() < end)
+        int i;
+        int retry=0;
+       // BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+       /* while((i = in.read(buffer, 0, 1024))!=-1)
         {
-            while (in.available() > 0)
+
+            line = new String(buffer, 0, i);
+            line=CleanOutput(line);
+            result.append(line+"\n");
+
+            if (channel.isClosed()){
+                break;
+            }
+
+            if(System.currentTimeMillis() < end)
+                break;
+
+        }*/
+        if(System.currentTimeMillis() > end)
+        {
+            throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+        }
+
+        /*while (( i = in.read(buffer, 0, 1024) ) !=-1)
+        {
+
+            line = new String(buffer, 0, i);
+            line = CleanOutput(line);
+            result.append(line + "\n");
+
+
+
+
+
+        }*/
+
+        while (true)
+        {
+            if(System.currentTimeMillis() > end)
             {
-                int i = in.read(buffer, 0, 1024);
+                throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+            }
+            while (in.available() > 0) {
+                if(System.currentTimeMillis() > end)
+                {
+                    throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+                }
+                 i = in.read(buffer, 0, 1024);
                 if (i < 0) {
                     break;
                 }
                 line = new String(buffer, 0, i);
-                line=CleanOutput(line);
-                result.append(line+"\n");
+                System.out.println(line);
+                line = CleanOutput(line);
+                result.append(line + "\n");
 
 
             }
@@ -104,16 +150,16 @@ public class TerminalUtils {
             if (channel.isClosed()){
                 break;
             }
+            if(retry>MAX_RETRY)
+                break;
             try {
-                Thread.sleep(MAX_THREAD_SLEEP);
-            } catch (Exception ee){
-                return result;
-            }
+                Thread.sleep(THREAD_SLEEP);
+                retry++;
+            } catch (Exception ee){}
         }
-
         return result;
     }
-    public static StringBuilder ReadUntil(Channel channel,String Check,int timeout) throws IOException {
+    public static StringBuilder ReadUntil(Channel channel,String Check,int timeout) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;
@@ -123,60 +169,104 @@ public class TerminalUtils {
 
         return result;
     }
-    private static StringBuilder  readChannelOutput(Channel channel,InputStream in,String Check,int timeout) throws IOException {
+    private static StringBuilder  readChannelOutput(Channel channel,InputStream in,String Check,int timeout) throws IOException, RTETimeOutException {
         byte[] buffer = new byte[1024];
         StringBuilder result= new StringBuilder();
         long t= System.currentTimeMillis();
         long end = t+(timeout*1000);
 
+
+        //BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
         String line = "";
-        while(System.currentTimeMillis() < end)
-        {
-            while (in.available() > 0)
+        int i;
+
+
+        if(System.currentTimeMillis() > end) {
+            throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+        }
+           /* while (( i = in.read(buffer, 0, 1024) ) !=-1)
             {
-                int i = in.read(buffer, 0, 1024);
+
+                line = new String(buffer, 0, i);
+                line = CleanOutput(line);
+                result.append(line + "\n");
+
+
+                if (channel.isClosed()){
+                    break;
+                }
+
+
+
+            }*/
+
+        /*while (in.available()>0)
+        {
+
+            i = in.read(buffer, 0, 1024);
+            if(i>0)
+            {
+                line = new String(buffer, 0, i);
+                line = CleanOutput(line);
+                result.append(line + "\n");
+
+            }
+            if(System.currentTimeMillis() > end)
+            {
+                throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+            }
+
+        }*/
+        int retry=0;
+        while (true)
+        {
+            if(System.currentTimeMillis() > end)
+            {
+                throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+            }
+            while (in.available() > 0) {
+                if(System.currentTimeMillis() > end)
+                {
+                    throw new RTETimeOutException("Action has reach the timeout"+ Integer.toString(timeout));
+                }
+                i = in.read(buffer, 0, 1024);
                 if (i < 0) {
                     break;
                 }
                 line = new String(buffer, 0, i);
-                line=CleanOutput(line);
-                result.append(line+"\n");
-
-                if(line.contains(Check)){
-                    break;
-                }
-            }
+                line = CleanOutput(line);
+                result.append(line + "\n");
 
 
-            if(line.contains(Check)){
-                break;
             }
 
             if (channel.isClosed()){
                 break;
             }
-
-
+            if(retry>MAX_RETRY)
+                break;
             try {
-                Thread.sleep(MAX_THREAD_SLEEP);
-            } catch (Exception ee){
-                return result;
-            }
+                Thread.sleep(THREAD_SLEEP);
+                retry++;
+            } catch (Exception ee){}
         }
-
-        return result;
+       return result;
     }
 
     public static boolean IsPaternInStringbuilder(String Check,StringBuilder content)
     {
-        if(content.toString().contains(Check))
-            return true;
-        else
-            return false;
+        String[] lines = content.toString().split("\\n");
+        boolean result=false;
+        for(String line :lines)
+        {
+            if (line.contains(Check))
+                return true;
+        }
+         return result;
     }
 
-    public static StringBuilder SendKeysAndWait(Channel channel,byte Text,int timeout,String patern) throws IOException
-    {
+    public static StringBuilder SendKeysAndWait(Channel channel,byte Text,int timeout,String patern) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;
@@ -188,13 +278,11 @@ public class TerminalUtils {
         out.flush();
 
         result=readChannelOutput(channel,in,patern,timeout);
-
         return result;
 
     }
 
-    public static StringBuilder SendKeys(Channel channel,byte Text,int timeout) throws IOException
-    {
+    public static StringBuilder SendKeys(Channel channel,byte Text,int timeout) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;
@@ -210,8 +298,7 @@ public class TerminalUtils {
         return result;
 
     }
-    public static StringBuilder SendKeys(Channel channel,String Text,int timeout) throws IOException
-    {
+    public static StringBuilder SendKeys(Channel channel,String Text,int timeout) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;
@@ -227,8 +314,7 @@ public class TerminalUtils {
         return result;
 
     }
-    public static StringBuilder SendNarrowKeys(Channel channel,String Text,int timeout) throws IOException
-    {
+    public static StringBuilder SendNarrowKeys(Channel channel,String Text,int timeout) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;
@@ -264,8 +350,7 @@ public class TerminalUtils {
         return result;
 
     }
-    public static StringBuilder SendNarrowKeysandWait(Channel channel,String Text,int timeout,String patern) throws IOException
-    {
+    public static StringBuilder SendNarrowKeysandWait(Channel channel,String Text,int timeout,String patern) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;
@@ -304,7 +389,7 @@ public class TerminalUtils {
     }
 
 
-    public static StringBuilder SendSpecialKeysAndWaitFor(Channel channel,String Text,int timeout,String patern) throws IOException {
+    public static StringBuilder SendSpecialKeysAndWaitFor(Channel channel,String Text,int timeout,String patern) throws IOException, RTETimeOutException {
         switch (Text.toUpperCase())
         {
             case CR:
@@ -385,7 +470,7 @@ public class TerminalUtils {
         }
 
     }
-    public static StringBuilder SendSpecialKeys(Channel channel,String Text,int timeout) throws IOException {
+    public static StringBuilder SendSpecialKeys(Channel channel,String Text,int timeout) throws IOException, RTETimeOutException {
         switch (Text.toUpperCase())
         {
             case CR:
@@ -466,7 +551,7 @@ public class TerminalUtils {
         }
 
     }
-    public static StringBuilder SendKeysAndWaitForPatern(Channel channel,String Text,String patern,int timeout) throws IOException {
+    public static StringBuilder SendKeysAndWaitForPatern(Channel channel,String Text,String patern,int timeout) throws IOException, RTETimeOutException {
         StringBuilder result;
         OutputStream out;
         InputStream in;

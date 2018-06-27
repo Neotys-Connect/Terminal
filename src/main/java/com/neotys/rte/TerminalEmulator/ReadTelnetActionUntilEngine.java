@@ -1,18 +1,18 @@
 package com.neotys.rte.TerminalEmulator;
 
-import java.util.List;
-
 import com.google.common.base.Strings;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
-import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
+import org.apache.commons.net.telnet.TelnetClient;
+
+import java.util.List;
 
 /**
- * Created by hrexed on 26/04/18.
+ * Created by hrexed on 11/05/18.
  */
-public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
+public class ReadTelnetActionUntilEngine implements ActionEngine {
     String Host=null;
     String Check=null;
     String Key=null;
@@ -22,22 +22,21 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
+        StringBuilder output;
+        TelnetClient channel;
 
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
             {
-                case  SendSpecialKeyAndWaitForAction.HOST:
+                case  ReadTelnetActionUntil.HOST:
                     Host= parameter.getValue();
                     break;
-                case  SendSpecialKeyAndWaitForAction.KEY:
-                    Key = parameter.getValue();
-                    break;
 
-                case  SendSpecialKeyAndWaitForAction.TimeOut:
+                case  ReadTelnetActionUntil.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-                case  SendSpecialKeyAndWaitForAction.CHECK:
+                case  ReadTelnetActionUntil.CHECK:
                     Check = parameter.getValue();
                     break;
 
@@ -46,12 +45,12 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
 
         if (Strings.isNullOrEmpty(Host)) {
             return getErrorResult(context, sampleResult, "Invalid argument: Host cannot be null "
-                    + SendSpecialKeyAndWaitForAction.HOST + ".", null);
+                    + ReadTelnetActionUntil.HOST + ".", null);
         }
 
         if (Strings.isNullOrEmpty(STimeOut)) {
             return getErrorResult(context, sampleResult, "Invalid argument: TimeOut cannot be null "
-                    + SendSpecialKeyAndWaitForAction.TimeOut + ".", null);
+                    + ReadTelnetActionUntil.TimeOut + ".", null);
         }
         else
         {
@@ -61,28 +60,19 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
             catch (NumberFormatException e)
             {
                 return getErrorResult(context, sampleResult, "Invalid argument: TimeOut needs to be a digit "
-                        + SendSpecialKeyAndWaitForAction.TimeOut + ".", null);
+                        + ReadTelnetActionUntil.TimeOut + ".", null);
             }
         }
 
         if (Strings.isNullOrEmpty(Check)) {
             return getErrorResult(context, sampleResult, "Invalid argument: CHECK cannot be null "
-                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);
+                    + ReadTelnetActionUntil.CHECK + ".", null);
         }
-        if (Strings.isNullOrEmpty(Key)) {
-            return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
-                    + SendSpecialKeyAndWaitForAction.KEY + ".", null);
-        }
-        else
-        {
-            if(!SSHChannel.isKeyInSpecialKeys(Key))
-                return getErrorResult(context, sampleResult, "Invalid argument: Key Can only have the following values : CR,VT,ESC,DEL,BS,LF,HT "
-                        + SendSpecialKeyAndWaitForAction.KEY + ".", null);
-        }
+
         try {
 
 
-            final SSHChannel channel = (SSHChannel)context.getCurrentVirtualUser().get(Host+"SSHChannel");
+            channel = (TelnetClient) context.getCurrentVirtualUser().get(Host+"TelnetClient");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -90,18 +80,19 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        final String output = channel.sendSpecialKeysAndWaitFor(Key, Check, TimeOut);
-                        sampleResult.sampleEnd();
-                        appendLineToStringBuilder(responseBuilder, output);
+                        output=TelnetTerminalUtils.ReadUntil(channel,Check,TimeOut);
 
-                      /*  if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
+                        appendLineToStringBuilder(responseBuilder, output.toString());
+
+                        sampleResult.sampleEnd();
+
+                       /* if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
                             return getErrorResult(context, sampleResult, "Patern not found: the patern was not found "
-                                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);*/
+                                    + ReadTelnetActionUntil.CHECK + ".", null);*/
+
+
                     }
-                    catch (RTETimeOutException e) {
-                        return getErrorResult(context, sampleResult, "TimeOut Exception:  "
-                                , null);
-                    }
+
                     catch (Exception e) {
                         return getErrorResult(context, sampleResult, "Technical Error:  "
                                 , e);
@@ -133,7 +124,7 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
      */
     private static SampleResult getErrorResult(final Context context, final SampleResult result, final String errorMessage, final Exception exception) {
         result.setError(true);
-        result.setStatusCode("NL-SendSpecialKeyAndWaitFor_ERROR");
+        result.setStatusCode("NL-ReadTelnetActionUntil_ERROR");
         result.setResponseContent(errorMessage);
         if(exception != null){
             context.getLogger().error(errorMessage, exception);

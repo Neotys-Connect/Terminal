@@ -1,9 +1,10 @@
 package com.neotys.rte.TerminalEmulator;
 
 import com.google.common.base.Optional;
+import com.neotys.extensions.action.Action;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
-import com.neotys.extensions.action.Action;
+
 import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,27 +15,28 @@ import java.util.ResourceBundle;
 /**
  * Created by hrexed on 26/04/18.
  */
-public final class SendTextAction implements Action {
+public final class SendTelnetSpecialKeyAction implements Action {
     private static final String BUNDLE_NAME = "com.neotys.rte.TerminalEmulator.bundle";
-    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameSendKey");
-    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
+    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameSendTelnetSpecialKey");
+    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPathTelnet");
     public static final String HOST = "HOST";
-    public static final String TEXT = "TEXT";
+    public static final String KEY="KEY";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
 
 
     @Override
     public String getType() {
-        return "SendKey";
+        return "SendTelnetSpecialKey";
     }
 
     @Override
     public List<ActionParameter> getDefaultActionParameters() {
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
         parameters.add(new ActionParameter(HOST, HOST));
-        parameters.add(new ActionParameter(TEXT, "TEXT"));
+        parameters.add(new ActionParameter(KEY, "CR"));
         parameters.add(new ActionParameter(TimeOut, "5"));
+
         // TODO Add default parameters.
         return parameters;
     }
@@ -50,7 +52,7 @@ public final class SendTextAction implements Action {
 
     @Override
     public Class<? extends ActionEngine> getEngineClass() {
-        return SendTextActionEngine.class;
+        return SendTelnetSpecialKeyActionEngine.class;
     }
 
     @Override
@@ -68,10 +70,25 @@ public final class SendTextAction implements Action {
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("SendKey Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("SendTelnetSpecialKey Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
-                .append("TEXT  : text that you would like to send \n")
+                .append("KEY  :  Send special KeyBoard keys : \n")
+                .append("\t\tCR : Carriage return  \n")
+                .append("\t\tBS : Backspace \n")
+                .append("\t\tHT : Horizontal TAB  \n")
+                .append("\t\tLF : Linefeed (newline) \n")
+                .append("\t\tVT : Vertical TAB \n")
+                .append("\t\tESC : Escape character \n")
+                .append("\t\tDEL : Delete character \n")
+                .append("\t\tCTRLA : CTRL A \n")
+                .append("\t\tCTRLB : CTRL A \n")
+                .append("\t\t.......\n")
+                .append("\t\tCTRLZ : CTRL Z \n")
+                .append("\t\tUP : up narrow \n")
+                .append("\t\tDOWN : down narrow \n")
+                .append("\t\tRIGHT : rigth narrow \n")
+                .append("\t\tLEFT : left narrow \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n");
         return description.toString();
     }

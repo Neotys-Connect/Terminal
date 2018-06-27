@@ -1,54 +1,79 @@
 package com.neotys.rte.TerminalEmulator;
 
-import java.util.List;
-
 import com.google.common.base.Strings;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
-import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
+import org.apache.commons.net.telnet.TelnetClient;
+
+import javax.management.openmbean.OpenDataException;
+import java.util.List;
 
 /**
- * Created by hrexed on 26/04/18.
+ * Created by hrexed on 11/06/18.
  */
-public class SendSpecialKeyActionEngine  implements ActionEngine {
+public class OpenTelnetSessionActionEngine implements ActionEngine {
     String Host=null;
-
-    String Key=null;
+    String Sport=null;
+    int port;
     String STimeOut;
     int TimeOut;
+    String TerminalType;
+    @Override
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
 
+
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
             {
-                case  SendSpecialKeyAction.HOST:
+                case  OpenTelnetSessionAction.HOST:
                     Host= parameter.getValue();
                     break;
-                case  SendSpecialKeyAction.KEY:
-                    Key = parameter.getValue();
+                case OpenTelnetSessionAction.Port:
+                    Sport = parameter.getValue();
                     break;
 
-                case  SendSpecialKeyAction.TimeOut:
+                case  OpenTelnetSessionAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
 
+                case  OpenTelnetSessionAction.TerminalType:
+                    TerminalType = parameter.getValue();
+                    break;
             }
         }
 
         if (Strings.isNullOrEmpty(Host)) {
             return getErrorResult(context, sampleResult, "Invalid argument: Host cannot be null "
-                    + SendSpecialKeyAction.HOST + ".", null);
+                    + OpenTelnetSessionAction.HOST + ".", null);
         }
-
+        if (Strings.isNullOrEmpty(TerminalType)) {
+            return getErrorResult(context, sampleResult, "Invalid argument: TerminalType cannot be null "
+                    + OpenTelnetSessionAction.TerminalType + ".", null);
+        }
+        if (Strings.isNullOrEmpty(Sport)) {
+            return getErrorResult(context, sampleResult, "Invalid argument: port cannot be null "
+                    + OpenTelnetSessionAction.Port + ".", null);
+        }
+        else
+        {
+            try{
+                port=Integer.parseInt(Sport);
+            }
+            catch (NumberFormatException e)
+            {
+                return getErrorResult(context, sampleResult, "Invalid argument: port needs to be a digit "
+                        + OpenTelnetSessionAction.Port + ".", null);
+            }
+        }
         if (Strings.isNullOrEmpty(STimeOut)) {
             return getErrorResult(context, sampleResult, "Invalid argument: TimeOut cannot be null "
-                    + SendSpecialKeyAction.TimeOut + ".", null);
+                    + OpenTelnetSessionAction.TimeOut + ".", null);
         }
         else
         {
@@ -58,53 +83,26 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
             catch (NumberFormatException e)
             {
                 return getErrorResult(context, sampleResult, "Invalid argument: TimeOut needs to be a digit "
-                        + SendSpecialKeyAction.TimeOut + ".", null);
+                        + OpenTelnetSessionAction.TimeOut + ".", null);
             }
         }
 
 
-        if (Strings.isNullOrEmpty(Key)) {
-            return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
-                    + SendSpecialKeyAction.KEY + ".", null);
-        }
-        else
-        {
-            if(!SSHChannel.isKeyInSpecialKeys(Key))
-                return getErrorResult(context, sampleResult, "Invalid argument: Key Can only have the following values : CR,VT,ESC,DEL,BS,LF,HT "
-                        + SendSpecialKeyAction.KEY + ".", null);
-        }
+
         try {
+            sampleResult.sampleStart();
 
+            TelnetClient channel = TelnetTerminalUtils.OpenSession(Host, port,TerminalType, TimeOut);
 
-            final SSHChannel channel = (SSHChannel)context.getCurrentVirtualUser().get(Host+"SSHChannel");
-            if(channel != null)
-            {
-                if (channel.isConnected())
-                {
-                    try
-                    {
-                        sampleResult.sampleStart();
-                        final String output = channel.sendSpecialKeys(Key, TimeOut);
-                        sampleResult.sampleEnd();
-                        appendLineToStringBuilder(responseBuilder, output);
-                    }
-                    catch (RTETimeOutException e) {
-                        return getErrorResult(context, sampleResult, "TimeOut Exception:  "
-                                , null);
-                    }
-                    catch (Exception e) {
-                        return getErrorResult(context, sampleResult, "Technical Error:  "
-                                , e);
-                    }
-                }
-                else
-                    return getErrorResult(context, sampleResult, "Session Error: The session is currently closed "
-                            , null);
-            }
+            if(channel.isConnected())
+                appendLineToStringBuilder(responseBuilder, "Session open on "+Host);
             else
-                return getErrorResult(context, sampleResult, "Session Error: No session created on that host "
+                return getErrorResult(context, sampleResult, "Session Error: Unable to open the session "
                         , null);
 
+
+            sampleResult.sampleEnd();
+            context.getCurrentVirtualUser().put( Host+"TelnetClient",channel);
         }
         catch (Exception e)
         {
@@ -114,6 +112,7 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
         sampleResult.setResponseContent(responseBuilder.toString());
         return sampleResult;
     }
+
     private void appendLineToStringBuilder(final StringBuilder sb, final String line){
         sb.append(line).append("\n");
     }
@@ -123,7 +122,7 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
      */
     private static SampleResult getErrorResult(final Context context, final SampleResult result, final String errorMessage, final Exception exception) {
         result.setError(true);
-        result.setStatusCode("NL-SendSpecialKey_ERROR");
+        result.setStatusCode("NL-OpenTelnetSessionAction_ERROR");
         result.setResponseContent(errorMessage);
         if(exception != null){
             context.getLogger().error(errorMessage, exception);
@@ -138,4 +137,3 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
         // TODO add code executed when the test have to stop.
     }
 }
-

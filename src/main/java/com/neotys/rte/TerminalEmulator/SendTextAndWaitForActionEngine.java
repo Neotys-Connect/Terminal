@@ -1,13 +1,13 @@
 package com.neotys.rte.TerminalEmulator;
 
+import java.util.List;
+
 import com.google.common.base.Strings;
-import com.jcraft.jsch.Channel;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
-
-import java.util.List;
+import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
 
 /**
  * Created by hrexed on 26/04/18.
@@ -23,8 +23,6 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        StringBuilder output;
-        Channel channel;
 
         //sess=null;
         for(ActionParameter parameter:parameters) {
@@ -79,7 +77,7 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
         try {
 
 
-            channel = (Channel)context.getCurrentVirtualUser().get(Host+"Channel");
+            final SSHChannel channel = (SSHChannel)context.getCurrentVirtualUser().get(Host+"SSHChannel");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -87,16 +85,18 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        output=TerminalUtils.SendKeysAndWaitForPatern(channel,Key,Check,TimeOut);
-                        appendLineToStringBuilder(responseBuilder, output.toString());
-
+                        final String output = channel.sendKeysAndWaitFor(Key,Check,TimeOut);
                         sampleResult.sampleEnd();
-
-                        if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
+                        appendLineToStringBuilder(responseBuilder, output);
+                       /* if(!TerminalUtils.IsPaternInStringbuilder(Check,output))
                             return getErrorResult(context, sampleResult, "Patern not found: the patern was not found "
-                                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);
+                                    + SendTextAndWaitForAction.CHECK + ".", null);*/
 
 
+                    }
+                    catch (RTETimeOutException e) {
+                        return getErrorResult(context, sampleResult, "TimeOut Exception:  "
+                                , null);
                     }
                     catch (Exception e) {
                         return getErrorResult(context, sampleResult, "Technical Error:  "

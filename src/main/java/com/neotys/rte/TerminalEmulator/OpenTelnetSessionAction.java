@@ -1,9 +1,10 @@
 package com.neotys.rte.TerminalEmulator;
 
 import com.google.common.base.Optional;
+import com.neotys.extensions.action.Action;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
-import com.neotys.extensions.action.Action;
+
 import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,45 +13,46 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Created by hrexed on 26/04/18.
+ * Created by hrexed on 11/06/18.
  */
-public final class SendTextAction implements Action {
+public class OpenTelnetSessionAction implements Action {
     private static final String BUNDLE_NAME = "com.neotys.rte.TerminalEmulator.bundle";
-    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameSendKey");
-    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
-    public static final String HOST = "HOST";
-    public static final String TEXT = "TEXT";
-    public static final String TimeOut = "TimeOut";
+    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameOpenTelnetSession");
+    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPathTelnet");
+    public static final String HOST="HOST";
+    public static final String Port="Port";
+    public static final String TerminalType="TerminalType";
+    public static final String TimeOut="TimeOut";
     private static final ImageIcon LOGO_ICON;
 
 
     @Override
     public String getType() {
-        return "SendKey";
+        return "OpenTelnetSession";
     }
 
     @Override
     public List<ActionParameter> getDefaultActionParameters() {
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
-        parameters.add(new ActionParameter(HOST, HOST));
-        parameters.add(new ActionParameter(TEXT, "TEXT"));
-        parameters.add(new ActionParameter(TimeOut, "5"));
+        parameters.add(new ActionParameter(HOST,HOST));
+        parameters.add(new ActionParameter(Port,"22"));
+        parameters.add(new ActionParameter(TerminalType,"VT100"));
+        parameters.add(new ActionParameter(TimeOut,"30"));
         // TODO Add default parameters.
         return parameters;
     }
-
     static {
         final URL iconURL = OpenSessionAction.class.getResource("logo.png");
         if (iconURL != null) {
             LOGO_ICON = new ImageIcon(iconURL);
-        } else {
+        }
+        else {
             LOGO_ICON = null;
         }
     }
-
     @Override
     public Class<? extends ActionEngine> getEngineClass() {
-        return SendTextActionEngine.class;
+        return OpenTelnetSessionActionEngine.class;
     }
 
     @Override
@@ -60,7 +62,7 @@ public final class SendTextAction implements Action {
     }
 
     @Override
-    public boolean getDefaultIsHit() {
+    public boolean getDefaultIsHit(){
         return true;
     }
 
@@ -68,10 +70,11 @@ public final class SendTextAction implements Action {
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("SendKey Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("OpenTelnetSession Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
-                .append("TEXT  : text that you would like to send \n")
+                .append("Port  : ssh port \n")
+                .append("TerminalType  : Vt100,vt200..etc \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n");
         return description.toString();
     }
@@ -96,3 +99,4 @@ public final class SendTextAction implements Action {
         return Optional.absent();
     }
 }
+

@@ -1,9 +1,10 @@
 package com.neotys.rte.TerminalEmulator;
 
 import com.google.common.base.Optional;
+import com.neotys.extensions.action.Action;
 import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
-import com.neotys.extensions.action.Action;
+
 import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,29 +13,30 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Created by hrexed on 26/04/18.
+ * Created by hrexed on 11/05/18.
  */
-public final class SendTextAction implements Action {
+public class ReadTelnetActionUntil implements Action {
     private static final String BUNDLE_NAME = "com.neotys.rte.TerminalEmulator.bundle";
-    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameSendKey");
-    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
+    private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameReadTelnetActionUntil");
+    private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPathTelnet");
     public static final String HOST = "HOST";
-    public static final String TEXT = "TEXT";
+    public static final String CHECK="CHECK";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
 
 
     @Override
     public String getType() {
-        return "SendKey";
+        return "ReadTelnetActionUntil";
     }
 
     @Override
     public List<ActionParameter> getDefaultActionParameters() {
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
         parameters.add(new ActionParameter(HOST, HOST));
-        parameters.add(new ActionParameter(TEXT, "TEXT"));
+        parameters.add(new ActionParameter(CHECK, "CHECK"));
         parameters.add(new ActionParameter(TimeOut, "5"));
+
         // TODO Add default parameters.
         return parameters;
     }
@@ -50,7 +52,7 @@ public final class SendTextAction implements Action {
 
     @Override
     public Class<? extends ActionEngine> getEngineClass() {
-        return SendTextActionEngine.class;
+        return ReadTelnetActionUntilEngine.class;
     }
 
     @Override
@@ -68,10 +70,10 @@ public final class SendTextAction implements Action {
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("SendKey Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("ReadTelnetActionUntil Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
-                .append("TEXT  : text that you would like to send \n")
+                .append("Check  :  Test to wait for \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n");
         return description.toString();
     }
