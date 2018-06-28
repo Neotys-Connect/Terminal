@@ -29,6 +29,9 @@ final class SshRteSource implements RteSource {
 	@Override
 	public byte[] read() throws IOException {
 		final int read = inputChannel.read(buffer, 0, buffer.length);
+		if(read==-1)
+			return null;
+
 		final byte[] result = new byte[read];
 		System.arraycopy(buffer, 0, result, 0, read);
 		return result;

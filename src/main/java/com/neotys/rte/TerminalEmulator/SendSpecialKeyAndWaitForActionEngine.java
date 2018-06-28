@@ -1,6 +1,9 @@
 package com.neotys.rte.TerminalEmulator;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import com.neotys.extensions.action.ActionParameter;
@@ -16,30 +19,42 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
     String Host=null;
     String Check=null;
     String Key=null;
+    String OPERATOR=null;
     String STimeOut;
     int TimeOut;
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
+        String pattern = "CHECK(\\d+)";
+        Pattern reg = Pattern.compile(pattern);
+        HashMap< Integer,String> CHECKList;
+        CHECKList = new HashMap< Integer,String>();
 
         //sess=null;
         for(ActionParameter parameter:parameters) {
-            switch(parameter.getName())
-            {
-                case  SendSpecialKeyAndWaitForAction.HOST:
-                    Host= parameter.getValue();
+            switch (parameter.getName()) {
+                case SendSpecialKeyAndWaitForAction.HOST:
+                    Host = parameter.getValue();
                     break;
-                case  SendSpecialKeyAndWaitForAction.KEY:
+                case SendSpecialKeyAndWaitForAction.KEY:
                     Key = parameter.getValue();
                     break;
 
-                case  SendSpecialKeyAndWaitForAction.TimeOut:
+                case SendSpecialKeyAndWaitForAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-                case  SendSpecialKeyAndWaitForAction.CHECK:
-                    Check = parameter.getValue();
+                case SendSpecialKeyAndWaitForAction.OPERATOR:
+                    OPERATOR = parameter.getValue();
                     break;
+                case  "CHECK":
+                    CHECKList.put(1,parameter.getValue());
+                    break;
+                default:
+                    Matcher m = reg.matcher(parameter.getName());
+                    if (m.find()) {
+                        CHECKList.put(Integer.valueOf(m.group(1)), parameter.getValue());
+                    }
 
             }
         }
@@ -65,9 +80,39 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
             }
         }
 
-        if (Strings.isNullOrEmpty(Check)) {
-            return getErrorResult(context, sampleResult, "Invalid argument: CHECK cannot be null "
-                    + SendSpecialKeyAndWaitForAction.CHECK + ".", null);
+        if(CHECKList.isEmpty()) {
+
+                return getErrorResult(context, sampleResult, "Invalid argument: you need at least One check "
+                        + SendSpecialKeyAndWaitForAction.CHECK1 + ".", null);
+
+        }
+        else
+        {
+            for(int keys: CHECKList.keySet())
+            {
+                if (Strings.isNullOrEmpty(CHECKList.get(keys)))
+                {
+                    return getErrorResult(context, sampleResult, "Invalid argument: CHECK"+keys+ " cannot be null"
+                            + SendSpecialKeyAndWaitForAction.CHECK1 + ".", null);
+                }
+
+            }
+            if(CHECKList.size()>1)
+            {
+                if (Strings.isNullOrEmpty(OPERATOR)) {
+                    return getErrorResult(context, sampleResult, "Invalid argument: OPERATOR cannot be null if you more than one CHECK"
+                            + SendSpecialKeyAndWaitForAction.OPERATOR + ".", null);
+                }
+                else
+                {
+                    if( !(OPERATOR.equalsIgnoreCase("AND") || OPERATOR.equalsIgnoreCase("OR")))
+                    {
+                        return getErrorResult(context, sampleResult, "Invalid argument: OPERATOR can only have the value AND or OR"
+                                + SendSpecialKeyAndWaitForAction.OPERATOR + ".", null);
+                    }
+                }
+            }
+
         }
         if (Strings.isNullOrEmpty(Key)) {
             return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
@@ -90,7 +135,7 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        final String output = channel.sendSpecialKeysAndWaitFor(Key, Check, TimeOut);
+                        final String output = channel.sendSpecialKeysAndWaitFor(Key, CHECKList,OPERATOR, TimeOut);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
 

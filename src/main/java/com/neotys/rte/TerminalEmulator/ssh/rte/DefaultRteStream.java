@@ -53,24 +53,28 @@ final class DefaultRteStream implements RteStream {
 	}
 	
 	private void readStreamLoop() {
-		while(source.isAlive()) {
-			try {
-				readStreamUnchecked();
-				
-				fireListeners();
+		try {
+				while(source.isAlive() && readStreamUnchecked())
+				{
+					fireListeners();
+				}
 			} catch (final Throwable t) {
-				// FIXME: LOG
+				t.printStackTrace();
 			}
-		}
+
 	}
 
-	private void readStreamUnchecked() throws Throwable {
+	private boolean readStreamUnchecked() throws Throwable {
 		final byte[] read = source.read();
-		if (read.length == 0) return;
+		if(read==null)
+			return false;
+
+		if (read.length == 0) return true;
 		
 		bufferLock.lock();
 		try {
 			buffer.write(read);
+			return true;
 		} finally {
 			bufferLock.unlock();
 		}

@@ -2,6 +2,7 @@ package com.neotys.rte.TerminalEmulator.ssh;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,31 +53,74 @@ public final class SSHChannel {
 		}
 	}
 	
-	public String sendKeys(final String text, final int timeout) throws SSHSessionException, RTETimeOutException {
+	public String sendKeys(final String text, final int timeout,final boolean NoWaitforEcho) throws SSHSessionException, RTETimeOutException {
 		if (!channel.isConnected()) throw new SSHSessionException(new RuntimeException("Channel is already close"));
 
-		sendTextKeysWithWaitingEcho(text, timeout);
+		if(!NoWaitforEcho)
+			sendTextKeysWithWaitingEcho(text, timeout);
+		else
+			sendTextKeysWithoutWaitingEcho(text.getBytes());
 		return "";
 	}
 
-	public String sendKeysAndWaitFor(final String text, final String pattern, final int timeout) throws SSHSessionException, RTETimeOutException {
+	public String sendKeysAndWaitFor(final String text, final HashMap<Integer,String> pattern,final String Operator, final int timeout) throws SSHSessionException, RTETimeOutException {
 		if (!channel.isConnected()) throw new SSHSessionException(new RuntimeException("Channel is already close"));
 
 		final CountDownLatch l = new CountDownLatch(1);
-		final AtomicReference<String> result = startListingPattern(pattern, l);
+		final AtomicReference<String> result = startListingPattern(pattern,Operator, l);
 		
 		sendTextKeysWithoutWaitingEcho(text.getBytes());
 		
 		return waitForListeningPattern(timeout, l, result);
 	}
 
-	private AtomicReference<String> startListingPattern(final String pattern, final CountDownLatch signal) {
+	private boolean CheckPatern(final byte[] buffer,final HashMap<Integer,String> pattern,String Operator)
+	{
+		int result;
+
+		if(pattern.size()>1)
+		{
+			for (int key : pattern.keySet())
+			{
+				result = Bytes.indexOf(buffer, pattern.get(key).getBytes());
+				switch (Operator)
+				{
+					case "AND":
+						if (result == -1)
+							return false;
+						break;
+					case "OR":
+						if (result != -1)
+							return true;
+						break;
+				}
+			}
+			switch (Operator)
+			{
+				case "AND":
+					return true;
+
+				case "OR":
+					return false;
+
+			}
+		}
+		else
+		{
+			if(Bytes.indexOf(buffer, pattern.get(1).getBytes())!=-1)
+				return true;
+			else
+				return false;
+		}
+		return false;
+	}
+	private AtomicReference<String> startListingPattern(final HashMap<Integer,String> pattern,final String Operator, final CountDownLatch signal) {
 		final AtomicReference<String> result = new AtomicReference<String>("");
-		final byte[] patternAsBytes = pattern.getBytes();
 		rteStream.addListener(new RteStreamListener() {
 			@Override
 			public void received(final byte[] buffer) {
-				if (Bytes.indexOf(buffer, patternAsBytes) != -1) {
+				if (CheckPatern(buffer,pattern,Operator))
+				{
 					rteStream.bufferClear();
 					rteStream.removeListener(this);
 					result.set(bytesToString(buffer));
@@ -153,11 +197,11 @@ public final class SSHChannel {
 		}
 	}
 	
-	public String sendSpecialKeysAndWaitFor(final String specialText, final String pattern, final int timeout) throws SSHSessionException, RTETimeOutException {
+	public String sendSpecialKeysAndWaitFor(final String specialText, final HashMap<Integer,String> pattern,final String Operator ,final int timeout) throws SSHSessionException, RTETimeOutException {
 		if (!channel.isConnected()) throw new SSHSessionException(new RuntimeException("Channel is already close"));
 
 		final CountDownLatch l = new CountDownLatch(1);
-		final AtomicReference<String> result = startListingPattern(pattern, l);
+		final AtomicReference<String> result = startListingPattern(pattern,Operator, l);
 		final SpecialKeys sp = SpecialKeysConverter.INSTANCE.apply(specialText);
 		try {
 			outputStream.write(sp.getAsciiCode());
@@ -172,11 +216,11 @@ public final class SSHChannel {
 		}
 	}
 
-	public String readUntil(final String pattern, final int timeout) throws SSHSessionException, RTETimeOutException {
+	public String readUntil(final HashMap<Integer,String> pattern,final String Operator, final int timeout) throws SSHSessionException, RTETimeOutException {
 		if (!channel.isConnected()) throw new SSHSessionException(new RuntimeException("Channel is already close"));
 		
 		final CountDownLatch l = new CountDownLatch(1);
-		final AtomicReference<String> result = startListingPattern(pattern, l);
+		final AtomicReference<String> result = startListingPattern(pattern,Operator, l);
 		return waitForListeningPattern(timeout, l, result);
 	}
 	

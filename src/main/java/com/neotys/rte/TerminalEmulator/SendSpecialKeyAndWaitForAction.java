@@ -21,7 +21,8 @@ public class SendSpecialKeyAndWaitForAction implements Action {
     private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
     public static final String HOST = "HOST";
     public static final String KEY="KEY";
-    public static final String CHECK="CHECK";
+    public static final String CHECK1="CHECK1";
+    public static final String OPERATOR="OPERATOR";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
 
@@ -36,7 +37,7 @@ public class SendSpecialKeyAndWaitForAction implements Action {
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
         parameters.add(new ActionParameter(HOST, HOST));
         parameters.add(new ActionParameter(KEY, "CR"));
-        parameters.add(new ActionParameter(CHECK, "CHECK"));
+        parameters.add(new ActionParameter(CHECK1, "CHECK1"));
         parameters.add(new ActionParameter(TimeOut, "5"));
 
         // TODO Add default parameters.
@@ -54,7 +55,7 @@ public class SendSpecialKeyAndWaitForAction implements Action {
 
     @Override
     public Class<? extends ActionEngine> getEngineClass() {
-        return SendSpecialKeyActionEngine.class;
+        return SendSpecialKeyAndWaitForActionEngine.class;
     }
 
     @Override
@@ -87,11 +88,14 @@ public class SendSpecialKeyAndWaitForAction implements Action {
                 .append("\t\tCTRLB : CTRL A \n")
                 .append("\t\t.......\n")
                 .append("\t\tCTRLZ : CTRL Z \n")
-                .append("\t\tUP : up narrow \n")
-                .append("\t\tDOWN : down narrow \n")
                 .append("\t\tRIGHT : rigth narrow \n")
                 .append("\t\tLEFT : left narrow \n")
-                .append("Check  :  Test to wait for \n")
+                .append("\t\tUP : up narrow \n")
+                .append("\t\tDOWN : down narrow \n")
+                .append("CHECK1  :  Test to wait for \n")
+                .append("CHECK2  :  2sd Test to wait for \n")
+                .append("...CHECKx  :  X Test to wait for \n")
+                .append("OPERATOR :  AND, OR. OPERATOR is required if you have more that one Check \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n");
         return description.toString();
     }

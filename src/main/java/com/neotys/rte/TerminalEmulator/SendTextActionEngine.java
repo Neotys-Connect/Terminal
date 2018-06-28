@@ -18,11 +18,12 @@ public class SendTextActionEngine implements ActionEngine    {
         String Key=null;
         String STimeOut;
         int TimeOut;
+        boolean NoWaitForEcho;
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-
+        String SNoWaitForEcho = null;
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
@@ -34,8 +35,11 @@ public class SendTextActionEngine implements ActionEngine    {
                     Key = parameter.getValue();
                     break;
 
-                case  SendSpecialKeyAction.TimeOut:
+                case  SendTextAction.TimeOut:
                     STimeOut = parameter.getValue();
+                    break;
+                case  SendTextAction.NoWaitForEcho:
+                    SNoWaitForEcho = parameter.getValue();
                     break;
 
             }
@@ -45,7 +49,16 @@ public class SendTextActionEngine implements ActionEngine    {
             return getErrorResult(context, sampleResult, "Invalid argument: Host cannot be null "
                     + SendTextAction.HOST + ".", null);
         }
-
+        if (Strings.isNullOrEmpty(SNoWaitForEcho)) {
+            NoWaitForEcho=false;
+        }
+        else
+        {
+            if(SNoWaitForEcho.equalsIgnoreCase("TRUE"))
+                NoWaitForEcho=true;
+            else
+                NoWaitForEcho=false;
+        }
         if (Strings.isNullOrEmpty(STimeOut)) {
             return getErrorResult(context, sampleResult, "Invalid argument: TimeOut cannot be null "
                     + SendTextAction.TimeOut + ".", null);
@@ -74,23 +87,25 @@ public class SendTextActionEngine implements ActionEngine    {
             final SSHChannel channel = (SSHChannel)context.getCurrentVirtualUser().get(Host+"SSHChannel");
             if(channel != null)
             {
+
                 if (channel.isConnected())
                 {
+
                     try
                     {
+
                         sampleResult.sampleStart();
-                        final String output = channel.sendKeys(Key, TimeOut);
+                        final String output = channel.sendKeys(Key, TimeOut,NoWaitForEcho);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
+
+
                     }
                     catch (RTETimeOutException e) {
                         return getErrorResult(context, sampleResult, "TimeOut Exception:  "
                                 , null);
                     }
-                    catch (Exception e) {
-                        return getErrorResult(context, sampleResult, "Technical Error:  "
-                                , e);
-                    }
+
                 }
                 else
                     return getErrorResult(context, sampleResult, "Session Error: The session is currently closed "
