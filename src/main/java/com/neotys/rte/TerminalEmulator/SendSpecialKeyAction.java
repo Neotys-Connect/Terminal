@@ -22,7 +22,7 @@ public final class SendSpecialKeyAction implements Action {
     public static final String KEY="KEY";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
-
+    public static final String ClearBufferBefore="ClearBufferBefore";
 
     @Override
     public String getType() {
@@ -88,7 +88,9 @@ public final class SendSpecialKeyAction implements Action {
                 .append("\t\tDOWN : down narrow \n")
                 .append("\t\tRIGHT : rigth narrow \n")
                 .append("\t\tLEFT : left narrow \n")
-                .append("TimeOut  : max duration in seconds to open the ssh connection \n");
+                .append("TimeOut  : max duration in seconds to open the ssh connection \n")
+                .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
+
         return description.toString();
     }
 

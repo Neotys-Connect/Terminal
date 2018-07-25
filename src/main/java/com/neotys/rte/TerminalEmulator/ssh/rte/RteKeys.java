@@ -20,7 +20,16 @@ public class RteKeys {
 				keySentAsEcho.write(ECHO_END_BYTES);
 			}
 			if (Bytes.indexOf(content, keySentAsEcho.toByteArray()) != -1) return true;
-			
+
+			//---check if the echo is sent differently---
+			final ByteArrayOutputStream keySentAsEcho2;
+			keySentAsEcho2=new ByteArrayOutputStream();
+			keySentAsEcho2.write(ECHO_START_BYTES);
+			keySentAsEcho2.write(keysSent);
+			keySentAsEcho2.write(ECHO_END_BYTES);
+			if (Bytes.indexOf(content, keySentAsEcho2.toByteArray()) != -1) return true;
+
+
 			// Password fields ???
 			final byte[] keySentAndWildCard = new byte[keysSent.length];
 			for(int i = 0; i < keysSent.length; i++) {

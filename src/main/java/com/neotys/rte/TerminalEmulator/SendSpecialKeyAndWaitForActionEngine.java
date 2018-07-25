@@ -22,10 +22,12 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
     String OPERATOR=null;
     String STimeOut;
     int TimeOut;
+    boolean ClearBufferBefore=false;
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
+        String sClearBufferBefore=null;
         String pattern = "CHECK(\\d+)";
         Pattern reg = Pattern.compile(pattern);
         HashMap< Integer,String> CHECKList;
@@ -49,6 +51,10 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
                     break;
                 case  "CHECK":
                     CHECKList.put(1,parameter.getValue());
+                    break;
+
+                case  SendSpecialKeyAndWaitForAction.ClearBufferBefore:
+                    sClearBufferBefore=parameter.getValue();
                     break;
                 default:
                     Matcher m = reg.matcher(parameter.getName());
@@ -124,6 +130,15 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
                 return getErrorResult(context, sampleResult, "Invalid argument: Key Can only have the following values : CR,VT,ESC,DEL,BS,LF,HT "
                         + SendSpecialKeyAndWaitForAction.KEY + ".", null);
         }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
+        }
         try {
 
 
@@ -135,7 +150,7 @@ public class SendSpecialKeyAndWaitForActionEngine  implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        final String output = channel.sendSpecialKeysAndWaitFor(Key, CHECKList,OPERATOR, TimeOut);
+                        final String output = channel.sendSpecialKeysAndWaitFor(Key, CHECKList,OPERATOR, TimeOut,ClearBufferBefore);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
 

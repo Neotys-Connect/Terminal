@@ -96,7 +96,7 @@ public final class OpenSessionActionEngine implements ActionEngine {
 		try {
 			sampleResult.sampleStart();
 
-			final SSHSession session = SSHSession.of(Host, port, Username, Password, TimeOut);
+			final SSHSession session = SSHSession.of(Host, port, Username, Password, TimeOut,context);
 			final SSHChannel channel = session.createChannel();
 
 			if(channel.isConnected())

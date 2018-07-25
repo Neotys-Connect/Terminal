@@ -23,10 +23,13 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
     String STimeOut;
     String OPERATOR=null;
     int TimeOut;
+    boolean ClearBufferBefore=false;
+
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
+        String sClearBufferBefore=null;
         String pattern = "CHECK(\\d+)";
         Pattern reg = Pattern.compile(pattern);
         HashMap< Integer,String> CHECKList;
@@ -47,6 +50,9 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
                     break;
                 case SendSpecialKeyAndWaitForAction.OPERATOR:
                     OPERATOR = parameter.getValue();
+                    break;
+                case SendSpecialKeyAndWaitForAction.ClearBufferBefore:
+                    sClearBufferBefore = parameter.getValue();
                     break;
                 case  "CHECK":
                     CHECKList.put(1,parameter.getValue());
@@ -120,6 +126,16 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
                     + SendTextAndWaitForAction.TEXT + ".", null);
         }
 
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
+        }
+
         try {
 
 
@@ -131,7 +147,7 @@ public class SendTextAndWaitForActionEngine implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        final String output = channel.sendKeysAndWaitFor(Key,CHECKList,OPERATOR,TimeOut);
+                        final String output = channel.sendKeysAndWaitFor(Key,CHECKList,OPERATOR,TimeOut,ClearBufferBefore);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
                        /* if(!TerminalUtils.IsPaternInStringbuilder(Check,output))

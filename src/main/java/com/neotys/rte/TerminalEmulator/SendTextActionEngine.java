@@ -19,11 +19,13 @@ public class SendTextActionEngine implements ActionEngine    {
         String STimeOut;
         int TimeOut;
         boolean NoWaitForEcho;
+        boolean ClearBufferBefore=false;
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
         String SNoWaitForEcho = null;
+        String sClearBufferBefore=null;
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
@@ -41,7 +43,8 @@ public class SendTextActionEngine implements ActionEngine    {
                 case  SendTextAction.NoWaitForEcho:
                     SNoWaitForEcho = parameter.getValue();
                     break;
-
+                case SendTextAction.ClearBufferBefore:
+                    sClearBufferBefore=parameter.getValue();
             }
         }
 
@@ -58,6 +61,15 @@ public class SendTextActionEngine implements ActionEngine    {
                 NoWaitForEcho=true;
             else
                 NoWaitForEcho=false;
+        }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
         }
         if (Strings.isNullOrEmpty(STimeOut)) {
             return getErrorResult(context, sampleResult, "Invalid argument: TimeOut cannot be null "
@@ -95,7 +107,7 @@ public class SendTextActionEngine implements ActionEngine    {
                     {
 
                         sampleResult.sampleStart();
-                        final String output = channel.sendKeys(Key, TimeOut,NoWaitForEcho);
+                        final String output = channel.sendKeys(Key, TimeOut,NoWaitForEcho,ClearBufferBefore);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
 

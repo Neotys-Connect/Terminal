@@ -18,10 +18,13 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
     String Key=null;
     String STimeOut;
     int TimeOut;
+    boolean ClearBufferBefore=false;
+
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
+        String sClearBufferBefore=null;
 
         //sess=null;
         for(ActionParameter parameter:parameters) {
@@ -37,7 +40,9 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
                 case  SendSpecialKeyAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-
+                case  SendSpecialKeyAction.ClearBufferBefore:
+                    sClearBufferBefore = parameter.getValue();
+                    break;
             }
         }
 
@@ -73,6 +78,16 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
                 return getErrorResult(context, sampleResult, "Invalid argument: Key Can only have the following values : CR,VT,ESC,DEL,BS,LF,HT "
                         + SendSpecialKeyAction.KEY + ".", null);
         }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
+        }
+
         try {
 
 
@@ -84,7 +99,7 @@ public class SendSpecialKeyActionEngine  implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        final String output = channel.sendSpecialKeys(Key, TimeOut);
+                        final String output = channel.sendSpecialKeys(Key, TimeOut,ClearBufferBefore);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
                     }

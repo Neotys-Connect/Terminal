@@ -12,3 +12,4 @@ com.neotys.rte.TerminalEmulator.SendTelnetTextAndWaitForAction
 com.neotys.rte.TerminalEmulator.ReadTelnetActionUntil
 com.neotys.rte.TerminalEmulator.OpenTelnetSessionAction
 com.neotys.rte.TerminalEmulator.CloseTelnetSessionAction
+com.neotys.rte.TerminalEmulator.GetBufferAction

@@ -23,7 +23,7 @@ public final class SendTextAction implements Action {
     public static final String TimeOut = "TimeOut";
     public static final String NoWaitForEcho = "NoWaitForEcho";
     private static final ImageIcon LOGO_ICON;
-
+    public static final String ClearBufferBefore="ClearBufferBefore";
 
     @Override
     public String getType() {
@@ -75,7 +75,8 @@ public final class SendTextAction implements Action {
                 .append("HOST  : host or ip of the server\n")
                 .append("TEXT  : text that you would like to send \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n")
-                .append("NoWaitForEcho  : True or False if true the action won't wait for the echo\n");
+                .append("NoWaitForEcho  : True or False if true the action won't wait for the echo\n")
+                .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
 
         return description.toString();
     }

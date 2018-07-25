@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.google.common.base.Ascii;
 import com.google.common.primitives.Bytes;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -73,13 +75,45 @@ final class DefaultRteStream implements RteStream {
 		
 		bufferLock.lock();
 		try {
-			buffer.write(read);
+				buffer.write(CleanScreen(read));
 			return true;
 		} finally {
 			bufferLock.unlock();
 		}
 	}
-	
+	public byte[] CleanScreen(byte[] read)
+	{
+		byte[] result;
+		final byte[] NEW_SCREEN=new byte[]{Ascii.ESC, '[','J'};
+		final byte[] NEW_PARTSCREEN=new byte[]{Ascii.ESC, '[','1','J'};
+		final byte[] NEW_PART2SCREEN=new byte[]{Ascii.ESC, '[','2','J'};
+
+		result=CleanByteArray(read,NEW_SCREEN);
+		result=CleanByteArray(result,NEW_PARTSCREEN);
+		result=CleanByteArray(result,NEW_PART2SCREEN);
+
+		if(result.length!=read.length)
+			bufferClear();
+
+		return result;
+	}
+
+	private byte[] CleanByteArray(byte[] src, byte[] toremove)
+	{
+		byte[] result;
+		int index=Bytes.indexOf(src,toremove);
+		if( index!=-1)
+		{
+			index=index+toremove.length;
+
+			result = Arrays.copyOfRange(src, index, src.length);
+			return result;
+
+		}
+		else
+			return src;
+
+	}
 	@Override
 	public byte[] bufferClear() {
 		bufferLock.lock();

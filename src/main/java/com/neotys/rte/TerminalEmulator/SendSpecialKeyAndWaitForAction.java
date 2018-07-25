@@ -25,7 +25,7 @@ public class SendSpecialKeyAndWaitForAction implements Action {
     public static final String OPERATOR="OPERATOR";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
-
+    public static final String ClearBufferBefore="ClearBufferBefore";
 
     @Override
     public String getType() {
@@ -96,7 +96,8 @@ public class SendSpecialKeyAndWaitForAction implements Action {
                 .append("CHECK2  :  2sd Test to wait for \n")
                 .append("...CHECKx  :  X Test to wait for \n")
                 .append("OPERATOR :  AND, OR. OPERATOR is required if you have more that one Check \n")
-                .append("TimeOut  : max duration in seconds to open the ssh connection \n");
+                .append("TimeOut  : max duration in seconds to open the ssh connection \n")
+                .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
         return description.toString();
     }
 

@@ -6,4 +6,8 @@ public final class SSHSessionException extends Exception {
 	public SSHSessionException(final Throwable cause) {
 		super(cause);
 	}
+
+	public SSHSessionException(String text) {
+		super(text);
+	}
 }
