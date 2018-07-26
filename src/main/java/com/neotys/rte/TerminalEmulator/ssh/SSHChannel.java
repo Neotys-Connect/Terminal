@@ -23,7 +23,6 @@ public final class SSHChannel {
 	private final Channel channel;
 	private final RteStream rteStream;
 	private final OutputStream outputStream;
-	private final RteStreamListener listen;
 	private final Context context;
 
 	private SSHChannel(final Channel channel, Context context) throws IOException {
@@ -32,14 +31,7 @@ public final class SSHChannel {
 		this.outputStream = channel.getOutputStream();
 		this.context=context;
 
-		this.listen=new RteStreamListener() {
-			@Override
-			public void received(byte[] buffer) {
-				System.out.println("received bytes :");
-				System.out.println(new String(buffer));
-			}
-		};
-		rteStream.addListener(listen);
+
 	}
 
 	protected static SSHChannel of(final Session session, Context context) throws SSHSessionException {
@@ -56,7 +48,6 @@ public final class SSHChannel {
 	
 	public void close() {
 		try {
-			rteStream.removeListener(this.listen);
 			rteStream.close();
 		} catch (IOException e) {
 		}
@@ -253,6 +244,7 @@ public final class SSHChannel {
 		try {
 			if(rteStream.isAlive()) {
 				context.getLogger().debug("Sending characters :" + new String(textAsBytes, "UTF-8"));
+				System.out.println("Sending characters :" + new String(textAsBytes, "UTF-8"));
 				outputStream.write(textAsBytes);
 				outputStream.flush();
 			}

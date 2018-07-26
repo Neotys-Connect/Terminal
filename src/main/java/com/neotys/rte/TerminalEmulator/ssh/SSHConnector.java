@@ -30,7 +30,7 @@ final class SSHConnector {
 	protected ChannelShell createShellChannel(final Session session) throws SSHSessionException {
 		try {
 			final ChannelShell channel = (ChannelShell)session.openChannel("shell");
-			channel.setPtyType("dumb");
+			channel.setPtyType("xterm");
 			channel.setPty(false);
 			channel.connect();
 			return channel;
