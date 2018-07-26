@@ -34,9 +34,9 @@ public final class SSHChannel {
 
 	}
 
-	protected static SSHChannel of(final Session session, Context context) throws SSHSessionException {
+	protected static SSHChannel of(final Session session, Context context,boolean enablePtty) throws SSHSessionException {
 		try {
-			return new SSHChannel(SSHConnector.INSTANCE.createShellChannel(session),context);
+			return new SSHChannel(SSHConnector.INSTANCE.createShellChannel(session,enablePtty),context);
 		} catch (IOException e) {
 			throw new SSHSessionException(e);
 		}
@@ -183,13 +183,16 @@ public final class SSHChannel {
 			@Override
 			public void received(final byte[] buffer) {
 				System.out.println(new String(buffer));
+
 				if (CheckPatern(buffer,pattern,Operator)||CheckStringPatern(buffer,pattern,Operator))
 				{
 					rteStream.bufferClear();
 					rteStream.removeListener(this);
 					result.set(bytesToString(buffer));
 					signal.countDown();
+
 				}
+
 			}
 		};
 		rteStream.addListener(listener);
@@ -220,10 +223,12 @@ public final class SSHChannel {
 					System.out.println("receiving echo :");
 					System.out.println(new String(buffer));
 					if (RteKeys.isKeysSent(bytes, buffer)) {
+
 						rteStream.bufferClear();
 						rteStream.removeListener(this);
 						latch.countDown();
 					}
+
 				}
 			});
 			

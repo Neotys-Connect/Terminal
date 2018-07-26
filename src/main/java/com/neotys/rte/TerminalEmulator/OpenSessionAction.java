@@ -23,7 +23,7 @@ public final class OpenSessionAction implements Action{
 	public static final String Password="Password";
 	public static final String TimeOut="TimeOut";
 	private static final ImageIcon LOGO_ICON;
-
+	public static final String EnablePtty="EnablePtty";
 
 	@Override
 	public String getType() {
@@ -76,7 +76,8 @@ public final class OpenSessionAction implements Action{
 				.append("Port  : ssh port \n")
 				.append("UserName  : Username to open the ssh connection \n")
 				.append("Password  : ssh password \n")
-				.append("TimeOut  : max duration in seconds to open the ssh connection \n");
+				.append("TimeOut  : max duration in seconds to open the ssh connection \n")
+				.append("EnablePtty  : optional ( default true) , set to false to get more output details from the application \n");
 		return description.toString();
 	}
 

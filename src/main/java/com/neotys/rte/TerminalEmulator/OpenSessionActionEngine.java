@@ -17,13 +17,14 @@ public final class OpenSessionActionEngine implements ActionEngine {
 	String Username=null;
 	String Password=null;
 	String STimeOut;
+	boolean EnablePtty=true;
 	int TimeOut;
 	@Override
 	public SampleResult execute(Context context, List<ActionParameter> parameters) {
 		final SampleResult sampleResult = new SampleResult();
 		final StringBuilder requestBuilder = new StringBuilder();
 		final StringBuilder responseBuilder = new StringBuilder();
-
+		String sEnablePtty=null;
 
 		//sess=null;
 		for(ActionParameter parameter:parameters) {
@@ -45,7 +46,9 @@ public final class OpenSessionActionEngine implements ActionEngine {
 				case  OpenSessionAction.TimeOut:
 					STimeOut = parameter.getValue();
 					break;
-
+				case  OpenSessionAction.EnablePtty:
+					sEnablePtty = parameter.getValue();
+					break;
 			}
 		}
 
@@ -92,12 +95,21 @@ public final class OpenSessionActionEngine implements ActionEngine {
 			return getErrorResult(context, sampleResult, "Invalid argument: Password cannot be null "
 					+ OpenSessionAction.Password + ".", null);
 		}
-
+		if (Strings.isNullOrEmpty(sEnablePtty)) {
+			EnablePtty=true;
+		}
+		else
+		{
+			if(sEnablePtty.equalsIgnoreCase("FALSE"))
+				EnablePtty=false;
+			else
+				EnablePtty=true;
+		}
 		try {
 			sampleResult.sampleStart();
 
 			final SSHSession session = SSHSession.of(Host, port, Username, Password, TimeOut,context);
-			final SSHChannel channel = session.createChannel();
+			final SSHChannel channel = session.createChannel(EnablePtty);
 
 			if(channel.isConnected())
 				appendLineToStringBuilder(responseBuilder, "Session open on "+Host);

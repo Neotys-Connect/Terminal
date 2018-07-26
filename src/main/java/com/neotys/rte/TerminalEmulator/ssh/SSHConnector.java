@@ -27,11 +27,15 @@ final class SSHConnector {
 		}
 	}
 
-	protected ChannelShell createShellChannel(final Session session) throws SSHSessionException {
+	protected ChannelShell createShellChannel(final Session session,boolean isPtyEnabled) throws SSHSessionException {
 		try {
 			final ChannelShell channel = (ChannelShell)session.openChannel("shell");
-			channel.setPtyType("xterm");
-			channel.setPty(false);
+			if(isPtyEnabled)
+			{
+				//----normal mode working with ptty --- other mode for debugging showing more characters
+				channel.setPtyType("dumb");
+				channel.setPty(false);
+			}
 			channel.connect();
 			return channel;
 		} catch (final JSchException e) {

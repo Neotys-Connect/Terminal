@@ -27,7 +27,7 @@ public final class SSHSession {
 		session.disconnect();
 	}
 	
-	public SSHChannel createChannel() throws SSHSessionException {
-		return SSHChannel.of(session,context);
+	public SSHChannel createChannel(boolean enablePtty) throws SSHSessionException {
+		return SSHChannel.of(session,context,enablePtty);
 	}
 }
