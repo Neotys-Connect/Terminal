@@ -73,9 +73,14 @@ public final class SSHChannel {
 			sendTextKeysWithoutWaitingEcho(text.getBytes());
 		return "";
 	}
-	public String getBufferContent()
+	public String getBufferContent(boolean cleanoutput)
 	{
-		String content=new String(this.rteStream.bufferCopy());
+		String content;
+		if(cleanoutput)
+			content=bytesToString(this.rteStream.bufferCopy());
+		else
+			content=new String(this.rteStream.bufferCopy());
+
 		this.rteStream.bufferClear();
 		return content;
 	}

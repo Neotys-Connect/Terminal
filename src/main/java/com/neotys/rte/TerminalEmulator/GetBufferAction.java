@@ -21,6 +21,7 @@ public final class GetBufferAction implements Action {
     private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPath");
     public static final String HOST="HOST";
     private static final ImageIcon LOGO_ICON;
+    public static final String CleanOutput="CleanOutput";
     @Override
     public String getType() {
         return "GetBuffer";
@@ -65,7 +66,8 @@ public final class GetBufferAction implements Action {
         // TODO Add description
         description.append("GetBuffer Will display and clear the buffer . useful to display the buffer after a timeout.\n")
                 .append("The parameters are : \n")
-                .append("HOST  : host or ip of the server\n");
+                .append("HOST  : host or ip of the server\n")
+                .append("CleanOutput  : Optionnal ( default value true)  this parameter will clean the ouput screens\n");
         return description.toString();
     }
 

@@ -14,17 +14,22 @@ import java.util.List;
  */
 public class GetBufferActionEngine implements ActionEngine {
     String Host;
+    boolean CleanOutput=true;
 
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
+        String sCleanOutput=null;
         String buffercontent=null;
 
         for(ActionParameter parameter:parameters) {
             switch (parameter.getName()) {
                 case GetBufferAction.HOST:
                     Host = parameter.getValue();
+                    break;
+                case GetBufferAction.CleanOutput:
+                    sCleanOutput = parameter.getValue();
                     break;
             }
         }
@@ -33,7 +38,16 @@ public class GetBufferActionEngine implements ActionEngine {
             return getErrorResult(context, sampleResult, "Invalid argument: Host cannot be null "
                     + GetBufferAction.HOST + ".", null);
         }
-
+        if (Strings.isNullOrEmpty(sCleanOutput)) {
+            CleanOutput=true;
+        }
+        else
+        {
+            if(sCleanOutput.equalsIgnoreCase("False"))
+                CleanOutput=false;
+            else
+                CleanOutput=true;
+        }
         final SSHChannel channel = (SSHChannel)context.getCurrentVirtualUser().get(Host+"SSHChannel");
         if(channel != null)
         {
@@ -41,7 +55,7 @@ public class GetBufferActionEngine implements ActionEngine {
             {
                 try {
                     sampleResult.sampleStart();
-                    buffercontent=channel.getBufferContent();
+                    buffercontent=channel.getBufferContent(CleanOutput);
                     if(buffercontent!=null)
                         appendLineToStringBuilder(responseBuilder, buffercontent);
 
