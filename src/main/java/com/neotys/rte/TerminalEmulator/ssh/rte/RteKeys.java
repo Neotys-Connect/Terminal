@@ -7,6 +7,14 @@ import com.google.common.base.Ascii;
 import com.google.common.primitives.Bytes;
 
 public class RteKeys {
+
+
+	//#TODO : manage the telnet echo ( different from ssh) , two different way to get the echo ( RTE_SSHkeus,and RTE_TelnetKeys)
+	private static final byte[] ECHO_START_BYTES_telnet = new byte[] {Ascii.ESC, '[', '1', '0', ';', '1','2', "H"};
+	private static final byte[] ECHO_END_BYTES_telnet = new byte[] {Ascii.ESC, '[', 'H',Ascii.ESC, '[', 'J', 's', ' ', Ascii.SI};
+
+
+
 	private static final byte[] ECHO_START_BYTES = new byte[] {Ascii.ESC, '[', '0', ';', '4', 'm', Ascii.SI};
 	private static final byte[] ECHO_END_BYTES = new byte[] {Ascii.ESC, '[', 'm', Ascii.SI};
 	
