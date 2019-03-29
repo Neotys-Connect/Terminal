@@ -16,10 +16,14 @@ public class TelnetSession {
         this.context=context;
     }
 
-    public static TelnetSession of(final String host, final int port, final String username, final String password,final String terminalType,  final int timeout,Context context) throws TelnetClientException {
-        return new TelnetSession(TelnetConnector.INSTANCE.createSession(host, port, username, password,terminalType, timeout),context);
+    public static TelnetSession of(final String host, final int port,final String terminalType,int timeout ,Context context) throws TelnetClientException {
+        return new TelnetSession(TelnetConnector.INSTANCE.createSession(host, port,terminalType,timeout),context);
     }
 
+    public TelnetClient getclient()
+    {
+        return session;
+    }
     public boolean isConnected() {
         return session.isConnected();
     }
@@ -32,6 +36,8 @@ public class TelnetSession {
 
     }
 
-
+    public TelnetChannel createChannel() throws TelnetSessionException {
+        return TelnetChannel.of(session,context);
+    }
 }
 

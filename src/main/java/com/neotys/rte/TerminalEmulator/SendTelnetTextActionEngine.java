@@ -5,6 +5,7 @@ import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
+import com.neotys.rte.TerminalEmulator.telnet.TelnetChannel;
 import org.apache.commons.net.telnet.TelnetClient;
 
 import java.util.List;
@@ -18,13 +19,16 @@ public class SendTelnetTextActionEngine implements ActionEngine    {
         String Key=null;
         String STimeOut;
         int TimeOut;
+    boolean NoWaitForEcho;
+    boolean ClearBufferBefore=false;
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        StringBuilder output;
-        TelnetClient channel;
-
+        String output;
+        TelnetChannel channel;
+        String SNoWaitForEcho = null;
+        String sClearBufferBefore = null;
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
@@ -39,7 +43,11 @@ public class SendTelnetTextActionEngine implements ActionEngine    {
                 case  SendTelnetTextAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-
+                case  SendTelnetTextAction.NoWaitForEcho:
+                    SNoWaitForEcho = parameter.getValue();
+                    break;
+                case SendTelnetTextAction.ClearBufferBefore:
+                    sClearBufferBefore=parameter.getValue();
             }
         }
 
@@ -64,7 +72,25 @@ public class SendTelnetTextActionEngine implements ActionEngine    {
             }
         }
 
-
+        if (Strings.isNullOrEmpty(SNoWaitForEcho)) {
+            NoWaitForEcho=false;
+        }
+        else
+        {
+            if(SNoWaitForEcho.equalsIgnoreCase("TRUE"))
+                NoWaitForEcho=true;
+            else
+                NoWaitForEcho=false;
+        }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
+        }
         if (Strings.isNullOrEmpty(Key)) {
             return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
                     + SendTelnetTextAction.TEXT + ".", null);
@@ -73,7 +99,7 @@ public class SendTelnetTextActionEngine implements ActionEngine    {
         try {
 
 
-            channel = (TelnetClient)context.getCurrentVirtualUser().get(Host+"TelnetClient");
+            channel = (TelnetChannel) context.getCurrentVirtualUser().get(Host+"TelnetClient");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -81,8 +107,8 @@ public class SendTelnetTextActionEngine implements ActionEngine    {
                     try
                     {
                         sampleResult.sampleStart();
-                        output=TelnetTerminalUtils.SendKeys(channel,Key,TimeOut);
-                        appendLineToStringBuilder(responseBuilder, output.toString());
+                        output=channel.sendKeys(Key, TimeOut,NoWaitForEcho,ClearBufferBefore);
+                        appendLineToStringBuilder(responseBuilder, output);
 
                         sampleResult.sampleEnd();
                     }

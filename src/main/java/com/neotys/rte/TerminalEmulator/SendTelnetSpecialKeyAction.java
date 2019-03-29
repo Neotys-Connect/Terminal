@@ -22,6 +22,7 @@ public final class SendTelnetSpecialKeyAction implements Action {
     public static final String HOST = "HOST";
     public static final String KEY="KEY";
     public static final String TimeOut = "TimeOut";
+    public static final String ClearBufferBefore="ClearBufferBefore";
     private static final ImageIcon LOGO_ICON;
 
 
@@ -89,7 +90,9 @@ public final class SendTelnetSpecialKeyAction implements Action {
                 .append("\t\tDOWN : down narrow \n")
                 .append("\t\tRIGHT : rigth narrow \n")
                 .append("\t\tLEFT : left narrow \n")
-                .append("TimeOut  : max duration in seconds to open the ssh connection \n");
+                .append("TimeOut  : max duration in seconds to open the ssh connection \n")
+                .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
+
         return description.toString();
     }
 

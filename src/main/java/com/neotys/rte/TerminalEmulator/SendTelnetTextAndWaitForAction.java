@@ -20,10 +20,11 @@ public class SendTelnetTextAndWaitForAction implements com.neotys.extensions.act
     private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPathTelnet");
     public static final String HOST = "HOST";
     public static final String TEXT = "TEXT";
-    public static final String CHECK = "CHECK";
-    public static final String TimeOut = "TimeOut";
+    public static final String CHECK1="CHECK1";
+    public static final String OPERATOR="OPERATOR";
+    public static final String ClearBufferBefore="ClearBufferBefore";
     private static final ImageIcon LOGO_ICON;
-
+    public static final String TimeOut = "TimeOut";
 
     @Override
     public String getType() {
@@ -35,7 +36,7 @@ public class SendTelnetTextAndWaitForAction implements com.neotys.extensions.act
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
         parameters.add(new ActionParameter(HOST, HOST));
         parameters.add(new ActionParameter(TEXT, "TEXT"));
-        parameters.add(new ActionParameter(CHECK, "CHECK"));
+        parameters.add(new ActionParameter(CHECK1, "CHECK"));
         parameters.add(new ActionParameter(TimeOut, "5"));
         // TODO Add default parameters.
         return parameters;
@@ -74,8 +75,13 @@ public class SendTelnetTextAndWaitForAction implements com.neotys.extensions.act
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
                 .append("TEXT  : text that you would like to send \n")
-                .append("CHECK  : Text to wait for \n")
-                .append("TimeOut  : max duration in seconds to open the ssh connection \n");
+                .append("CHECK1  :  Test to wait for \n")
+                .append("CHECK2  :  2sd Test to wait for \n")
+                .append("...CHECKx  :  X Test to wait for \n")
+                .append("OPERATOR :  AND, OR. OPERATOR is required if you have more that one Check \n")
+                .append("TimeOut  : max duration in seconds to open the ssh connection \n")
+                .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
+
         return description.toString();
     }
 

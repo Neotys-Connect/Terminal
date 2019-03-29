@@ -16,10 +16,16 @@ public final class SpecialKeys {
 		return new SpecialKeys(asciiCode, Optional.ofNullable(additionalBytes));
 	}
 	
-	protected static SpecialKeys of(final byte asciiCode) {
+public static SpecialKeys of(final byte asciiCode) {
 		return new SpecialKeys(asciiCode, Optional.empty());
 	}
-	
+
+	public static SpecialKeys of(final byte asciiCode,final byte asciicodes) {
+		byte[] converte=new byte[1];
+		converte[0]=asciicodes;
+		return new SpecialKeys(asciiCode, Optional.ofNullable(converte));
+	}
+
 	public byte getAsciiCode() {
 		return asciiCode;
 	}

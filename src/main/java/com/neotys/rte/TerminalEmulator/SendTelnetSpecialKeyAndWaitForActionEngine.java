@@ -7,9 +7,13 @@ import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
 import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
 
+import com.neotys.rte.TerminalEmulator.telnet.TelnetChannel;
 import org.apache.commons.net.telnet.TelnetClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by hrexed on 26/04/18.
@@ -18,32 +22,51 @@ public class SendTelnetSpecialKeyAndWaitForActionEngine implements ActionEngine 
     String Host=null;
     String Check=null;
     String Key=null;
+    String OPERATOR=null;
     String STimeOut;
     int TimeOut;
+    boolean ClearBufferBefore=false;
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        StringBuilder output;
-        TelnetClient channel;
+        String output;
+        TelnetChannel channel;
+
+        String sClearBufferBefore=null;
+        String pattern = "CHECK(\\d+)";
+        Pattern reg = Pattern.compile(pattern);
+        HashMap< Integer,String> CHECKList;
+        CHECKList = new HashMap< Integer,String>();
 
         //sess=null;
         for(ActionParameter parameter:parameters) {
-            switch(parameter.getName())
-            {
-                case  SendTelnetSpecialKeyAndWaitForAction.HOST:
-                    Host= parameter.getValue();
+            switch (parameter.getName()) {
+                case SendTelnetSpecialKeyAndWaitForAction.HOST:
+                    Host = parameter.getValue();
                     break;
-                case  SendTelnetSpecialKeyAndWaitForAction.KEY:
+                case SendTelnetSpecialKeyAndWaitForAction.KEY:
                     Key = parameter.getValue();
                     break;
 
-                case  SendTelnetSpecialKeyAndWaitForAction.TimeOut:
+                case SendTelnetSpecialKeyAndWaitForAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-                case  SendTelnetSpecialKeyAndWaitForAction.CHECK:
-                    Check = parameter.getValue();
+                case SendTelnetSpecialKeyAndWaitForAction.OPERATOR:
+                    OPERATOR = parameter.getValue();
                     break;
+                case  "CHECK":
+                    CHECKList.put(1,parameter.getValue());
+                    break;
+
+                case  SendTelnetSpecialKeyAndWaitForAction.ClearBufferBefore:
+                    sClearBufferBefore=parameter.getValue();
+                    break;
+                default:
+                    Matcher m = reg.matcher(parameter.getName());
+                    if (m.find()) {
+                        CHECKList.put(Integer.valueOf(m.group(1)), parameter.getValue());
+                    }
 
             }
         }
@@ -69,24 +92,63 @@ public class SendTelnetSpecialKeyAndWaitForActionEngine implements ActionEngine 
             }
         }
 
-        if (Strings.isNullOrEmpty(Check)) {
-            return getErrorResult(context, sampleResult, "Invalid argument: CHECK cannot be null "
-                    + SendTelnetSpecialKeyAndWaitForAction.CHECK + ".", null);
+        if(CHECKList.isEmpty()) {
+
+            return getErrorResult(context, sampleResult, "Invalid argument: you need at least One check "
+                    + SendSpecialKeyAndWaitForAction.CHECK1 + ".", null);
+
+        }
+        else
+        {
+            for(int keys: CHECKList.keySet())
+            {
+                if (Strings.isNullOrEmpty(CHECKList.get(keys)))
+                {
+                    return getErrorResult(context, sampleResult, "Invalid argument: CHECK"+keys+ " cannot be null"
+                            + SendSpecialKeyAndWaitForAction.CHECK1 + ".", null);
+                }
+
+            }
+            if(CHECKList.size()>1)
+            {
+                if (Strings.isNullOrEmpty(OPERATOR)) {
+                    return getErrorResult(context, sampleResult, "Invalid argument: OPERATOR cannot be null if you more than one CHECK"
+                            + SendSpecialKeyAndWaitForAction.OPERATOR + ".", null);
+                }
+                else
+                {
+                    if( !(OPERATOR.equalsIgnoreCase("AND") || OPERATOR.equalsIgnoreCase("OR")))
+                    {
+                        return getErrorResult(context, sampleResult, "Invalid argument: OPERATOR can only have the value AND or OR"
+                                + SendSpecialKeyAndWaitForAction.OPERATOR + ".", null);
+                    }
+                }
+            }
+
         }
         if (Strings.isNullOrEmpty(Key)) {
             return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
-                    + SendTelnetSpecialKeyAndWaitForAction.KEY + ".", null);
+                    + SendSpecialKeyAndWaitForAction.KEY + ".", null);
         }
         else
         {
             if(!SSHChannel.isKeyInSpecialKeys(Key))
                 return getErrorResult(context, sampleResult, "Invalid argument: Key Can only have the following values : CR,VT,ESC,DEL,BS,LF,HT "
-                        + SendTelnetSpecialKeyAndWaitForAction.KEY + ".", null);
+                        + SendSpecialKeyAndWaitForAction.KEY + ".", null);
+        }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
         }
         try {
 
 
-            channel = (TelnetClient) context.getCurrentVirtualUser().get(Host+"TelnetClient");
+            channel = (TelnetChannel) context.getCurrentVirtualUser().get(Host+"TelnetClient");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -94,8 +156,8 @@ public class SendTelnetSpecialKeyAndWaitForActionEngine implements ActionEngine 
                     try
                     {
                         sampleResult.sampleStart();
-                        output=TelnetTerminalUtils.SendSpecialKeysAndWaitFor(channel,Key,TimeOut,Check);
-                        appendLineToStringBuilder(responseBuilder, output.toString());
+                        output=channel.sendSpecialKeysAndWaitFor(Key, CHECKList,OPERATOR, TimeOut,ClearBufferBefore);
+                        appendLineToStringBuilder(responseBuilder, output);
                         sampleResult.sampleEnd();
 
                         /*if(!TerminalUtils.IsPaternInStringbuilder(Check,output))

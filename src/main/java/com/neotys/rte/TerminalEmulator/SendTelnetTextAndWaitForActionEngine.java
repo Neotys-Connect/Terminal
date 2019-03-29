@@ -5,9 +5,13 @@ import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
+import com.neotys.rte.TerminalEmulator.telnet.TelnetChannel;
 import org.apache.commons.net.telnet.TelnetClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by hrexed on 26/04/18.
@@ -19,13 +23,20 @@ public class SendTelnetTextAndWaitForActionEngine implements ActionEngine {
     String Check=null;
     String STimeOut;
     int TimeOut;
+    String OPERATOR=null;
+    boolean ClearBufferBefore=false;
+
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        StringBuilder output;
-        TelnetClient channel;
-
+        String output;
+        TelnetChannel channel;
+        String sClearBufferBefore=null;
+        String pattern = "CHECK(\\d+)";
+        Pattern reg = Pattern.compile(pattern);
+        HashMap< Integer,String> CHECKList;
+        CHECKList = new HashMap< Integer,String>();
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
@@ -40,11 +51,24 @@ public class SendTelnetTextAndWaitForActionEngine implements ActionEngine {
                 case  SendTelnetTextAndWaitForAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-                case  SendTelnetTextAndWaitForAction.CHECK:
-                    Check = parameter.getValue();
+                case SendTelnetTextAndWaitForAction.OPERATOR:
+                    OPERATOR = parameter.getValue();
                     break;
+                case SendTelnetTextAndWaitForAction.ClearBufferBefore:
+                    sClearBufferBefore = parameter.getValue();
+                    break;
+                case  "CHECK":
+                    CHECKList.put(1,parameter.getValue());
+                    break;
+                default:
+                    Matcher m = reg.matcher(parameter.getName());
+                    if (m.find()) {
+                        CHECKList.put(Integer.valueOf(m.group(1)), parameter.getValue());
+                    }
             }
         }
+
+
 
         if (Strings.isNullOrEmpty(Host)) {
             return getErrorResult(context, sampleResult, "Invalid argument: Host cannot be null "
@@ -72,14 +96,53 @@ public class SendTelnetTextAndWaitForActionEngine implements ActionEngine {
             return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
                     + SendTelnetTextAndWaitForAction.TEXT + ".", null);
         }
-        if (Strings.isNullOrEmpty(Check)) {
-            return getErrorResult(context, sampleResult, "Invalid argument: Key cannot be null "
-                    + SendTelnetTextAndWaitForAction.CHECK + ".", null);
+        if(CHECKList.isEmpty()) {
+
+            return getErrorResult(context, sampleResult, "Invalid argument: you need at least One check "
+                    + SendTextAndWaitForAction.CHECK1 + ".", null);
+
+        }
+        else
+        {
+            for(int keys: CHECKList.keySet())
+            {
+                if (Strings.isNullOrEmpty(CHECKList.get(keys)))
+                {
+                    return getErrorResult(context, sampleResult, "Invalid argument: CHECK"+keys+ " cannot be null"
+                            + SendTextAndWaitForAction.CHECK1 + ".", null);
+                }
+
+            }
+            if(CHECKList.size()>1)
+            {
+                if (Strings.isNullOrEmpty(OPERATOR)) {
+                    return getErrorResult(context, sampleResult, "Invalid argument: OPERATOR cannot be null if you more than one CHECK"
+                            + SendTextAndWaitForAction.OPERATOR + ".", null);
+                }
+                else
+                {
+                    if( !(OPERATOR.equalsIgnoreCase("AND") || OPERATOR.equalsIgnoreCase("OR")))
+                    {
+                        return getErrorResult(context, sampleResult, "Invalid argument: OPERATOR can only have the value AND or OR"
+                                + SendTextAndWaitForAction.OPERATOR + ".", null);
+                    }
+                }
+            }
+
+        }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
         }
         try {
 
 
-            channel = (TelnetClient)context.getCurrentVirtualUser().get(Host+"TelnetClient");
+            channel = (TelnetChannel) context.getCurrentVirtualUser().get(Host+"TelnetClient");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -87,8 +150,8 @@ public class SendTelnetTextAndWaitForActionEngine implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        output= TelnetTerminalUtils.SendKeysAndWaitForPatern(channel,Key,Check,TimeOut);
-                        appendLineToStringBuilder(responseBuilder, output.toString());
+                        output= channel.sendKeysAndWaitFor(Key,CHECKList,OPERATOR,TimeOut,ClearBufferBefore);
+                        appendLineToStringBuilder(responseBuilder, output);
 
                         sampleResult.sampleEnd();
 

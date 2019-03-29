@@ -20,7 +20,8 @@ public class ReadTelnetActionUntil implements Action {
     private static final String DISPLAY_NAME = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayNameReadTelnetActionUntil");
     private static final String DISPLAY_PATH = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault()).getString("displayPathTelnet");
     public static final String HOST = "HOST";
-    public static final String CHECK="CHECK";
+    public static final String CHECK1="CHECK1";
+    public static final String OPERATOR="OPERATOR";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
 
@@ -34,7 +35,7 @@ public class ReadTelnetActionUntil implements Action {
     public List<ActionParameter> getDefaultActionParameters() {
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
         parameters.add(new ActionParameter(HOST, HOST));
-        parameters.add(new ActionParameter(CHECK, "CHECK"));
+        parameters.add(new ActionParameter(CHECK1, "CHECK1"));
         parameters.add(new ActionParameter(TimeOut, "5"));
 
         // TODO Add default parameters.
@@ -73,7 +74,10 @@ public class ReadTelnetActionUntil implements Action {
         description.append("ReadTelnetActionUntil Will open the ssh connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
-                .append("Check  :  Test to wait for \n")
+                .append("CHECK1  :  Test to wait for \n")
+                .append("CHECK2  :  2sd Test to wait for \n")
+                .append("...CHECKX  :  X Test to wait for \n")
+                .append("OPERATOR :  AND, OR. OPERATOR is required if you have more that one Check \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n");
         return description.toString();
     }

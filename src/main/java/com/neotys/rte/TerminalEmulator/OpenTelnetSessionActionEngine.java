@@ -5,6 +5,8 @@ import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
+import com.neotys.rte.TerminalEmulator.telnet.TelnetChannel;
+import com.neotys.rte.TerminalEmulator.telnet.TelnetSession;
 import org.apache.commons.net.telnet.TelnetClient;
 
 import javax.management.openmbean.OpenDataException;
@@ -92,7 +94,9 @@ public class OpenTelnetSessionActionEngine implements ActionEngine {
         try {
             sampleResult.sampleStart();
 
-            TelnetClient channel = TelnetTerminalUtils.OpenSession(Host, port,TerminalType, TimeOut);
+            final TelnetSession session = TelnetSession.of(Host, port, TerminalType, TimeOut,context);
+            final TelnetChannel channel =  session.createChannel();
+
 
             if(channel.isConnected())
                 appendLineToStringBuilder(responseBuilder, "Session open on "+Host);

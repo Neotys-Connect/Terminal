@@ -7,6 +7,7 @@ import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
 import com.neotys.rte.TerminalEmulator.ssh.SSHChannel;
 
+import com.neotys.rte.TerminalEmulator.telnet.TelnetChannel;
 import org.apache.commons.net.telnet.TelnetClient;
 
 import java.util.List;
@@ -20,13 +21,15 @@ public class SendTelnetSpecialKeyActionEngine implements ActionEngine {
     String Key=null;
     String STimeOut;
     int TimeOut;
+    boolean ClearBufferBefore=false;
+
     public SampleResult execute(Context context, List<ActionParameter> parameters) {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        StringBuilder output;
-        TelnetClient channel;
-
+        String output;
+        TelnetChannel channel;
+        String sClearBufferBefore = null;
         //sess=null;
         for(ActionParameter parameter:parameters) {
             switch(parameter.getName())
@@ -41,7 +44,9 @@ public class SendTelnetSpecialKeyActionEngine implements ActionEngine {
                 case  SendTelnetSpecialKeyAction.TimeOut:
                     STimeOut = parameter.getValue();
                     break;
-
+                case  SendSpecialKeyAction.ClearBufferBefore:
+                     sClearBufferBefore = parameter.getValue();
+                    break;
             }
         }
 
@@ -77,10 +82,19 @@ public class SendTelnetSpecialKeyActionEngine implements ActionEngine {
                 return getErrorResult(context, sampleResult, "Invalid argument: Key Can only have the following values : CR,VT,ESC,DEL,BS,LF,HT "
                         + SendTelnetSpecialKeyAction.KEY + ".", null);
         }
+        if (Strings.isNullOrEmpty(sClearBufferBefore)) {
+            ClearBufferBefore=false;
+        }
+        else {
+            if (sClearBufferBefore.equalsIgnoreCase("TRUE"))
+                ClearBufferBefore = true;
+            else
+                ClearBufferBefore = false;
+        }
         try {
 
 
-            channel = (TelnetClient)context.getCurrentVirtualUser().get(Host+"TelnetClient");
+            channel = (TelnetChannel) context.getCurrentVirtualUser().get(Host+"TelnetClient");
             if(channel != null)
             {
                 if (channel.isConnected())
@@ -88,8 +102,8 @@ public class SendTelnetSpecialKeyActionEngine implements ActionEngine {
                     try
                     {
                         sampleResult.sampleStart();
-                        output=TelnetTerminalUtils.SendSpecialKeys(channel,Key,TimeOut);
-                        appendLineToStringBuilder(responseBuilder, output.toString());
+                        output=channel.sendSpecialKeys(Key,TimeOut,ClearBufferBefore);
+                        appendLineToStringBuilder(responseBuilder, output);
 
                         sampleResult.sampleEnd();
 

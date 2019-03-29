@@ -35,9 +35,9 @@ public class OpenTelnetSessionAction implements Action {
     public List<ActionParameter> getDefaultActionParameters() {
         final List<ActionParameter> parameters = new ArrayList<ActionParameter>();
         parameters.add(new ActionParameter(HOST,HOST));
-        parameters.add(new ActionParameter(Port,"22"));
+        parameters.add(new ActionParameter(Port,"23"));
         parameters.add(new ActionParameter(TerminalType,"VT100"));
-        parameters.add(new ActionParameter(TimeOut,"30"));
+        parameters.add(new ActionParameter(TimeOut,"60"));
         // TODO Add default parameters.
         return parameters;
     }
@@ -70,12 +70,12 @@ public class OpenTelnetSessionAction implements Action {
     public String getDescription() {
         final StringBuilder description = new StringBuilder();
         // TODO Add description
-        description.append("OpenTelnetSession Will open the ssh connection to the remote Xterm Server.\n")
+        description.append("OpenTelnetSession Will open the telnet connection to the remote Xterm Server.\n")
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
                 .append("Port  : ssh port \n")
-                .append("TerminalType  : Vt100,vt200..etc \n")
-                .append("TimeOut  : max duration in seconds to open the ssh connection \n");
+                .append("TerminalType  : VT100,VT200..etc \n")
+                .append("TimeOut  : max duration in seconds to open the telnet connection \n");
         return description.toString();
     }
 

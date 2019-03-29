@@ -10,7 +10,7 @@ public class RteKeys {
 
 
 	//#TODO : manage the telnet echo ( different from ssh) , two different way to get the echo ( RTE_SSHkeus,and RTE_TelnetKeys)
-	private static final byte[] ECHO_START_BYTES_telnet = new byte[] {Ascii.ESC, '[', '1', '0', ';', '1','2', "H"};
+	private static final byte[] ECHO_START_BYTES_telnet = new byte[] {Ascii.ESC, '[', '1', '0', ';', '1','2', 'H'};
 	private static final byte[] ECHO_END_BYTES_telnet = new byte[] {Ascii.ESC, '[', 'H',Ascii.ESC, '[', 'J', 's', ' ', Ascii.SI};
 
 
@@ -37,6 +37,11 @@ public class RteKeys {
 			keySentAsEcho2.write(ECHO_END_BYTES);
 			if (Bytes.indexOf(content, keySentAsEcho2.toByteArray()) != -1) return true;
 
+			//---check if the echo is the keys typed by the user---
+			final ByteArrayOutputStream keySentAsEcho3;
+			keySentAsEcho3=new ByteArrayOutputStream();
+			keySentAsEcho3.write(keysSent);
+			if (Bytes.indexOf(content, keySentAsEcho3.toByteArray()) != -1) return true;
 
 			// Password fields ???
 			final byte[] keySentAndWildCard = new byte[keysSent.length];

@@ -23,7 +23,8 @@ public final class SendTelnetTextAction implements Action {
     public static final String TEXT = "TEXT";
     public static final String TimeOut = "TimeOut";
     private static final ImageIcon LOGO_ICON;
-
+    public static final String NoWaitForEcho = "NoWaitForEcho";
+    public static final String ClearBufferBefore="ClearBufferBefore";
 
     @Override
     public String getType() {
@@ -36,6 +37,7 @@ public final class SendTelnetTextAction implements Action {
         parameters.add(new ActionParameter(HOST, HOST));
         parameters.add(new ActionParameter(TEXT, "TEXT"));
         parameters.add(new ActionParameter(TimeOut, "5"));
+        parameters.add(new ActionParameter(NoWaitForEcho, "FALSE"));
         // TODO Add default parameters.
         return parameters;
     }
@@ -73,7 +75,10 @@ public final class SendTelnetTextAction implements Action {
                 .append("The parameters are : \n")
                 .append("HOST  : host or ip of the server\n")
                 .append("TEXT  : text that you would like to send \n")
-                .append("TimeOut  : max duration in seconds to open the ssh connection \n");
+                .append("TimeOut  : max duration in seconds to open the ssh connection \n")
+                .append("NoWaitForEcho  : True or False if true the action won't wait for the echo\n")
+                .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
+
         return description.toString();
     }
 

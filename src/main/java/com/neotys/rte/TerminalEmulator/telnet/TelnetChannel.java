@@ -1,5 +1,6 @@
 package com.neotys.rte.TerminalEmulator.telnet;
 
+import com.google.common.base.Ascii;
 import com.google.common.primitives.Bytes;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.rte.TerminalEmulator.RTETimeOutException;
@@ -12,10 +13,13 @@ import org.apache.commons.net.telnet.TelnetClient;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class TelnetChannel {
     private final TelnetClient channel;
@@ -25,6 +29,7 @@ public class TelnetChannel {
 
     private static final byte[] SCREEN_NAME = new byte[] {Ascii.ESC, '[', '1', ';', '1','5', 'H'};
 
+    private static final byte[] RERESH_SCREEN = new byte[] {Ascii.ESC, '[', '2', 'J', };
     private TelnetChannel(final TelnetClient channel, Context context) throws IOException {
         this.channel = channel;
         this.rteStream = RteStream.of(TelnetSource.of(channel));
@@ -34,9 +39,9 @@ public class TelnetChannel {
 
     }
 
-    protected static TelnetChannel of(final TelnetClient session, Context context,boolean enablePtty) throws TelnetSessionException {
+    public static TelnetChannel of(final TelnetClient session, Context context) throws TelnetSessionException {
         try {
-            return new TelnetChannel(TelnetConnector.INSTANCE.createSession(session,enablePtty),context);
+            return new TelnetChannel(session,context);
         } catch (IOException e) {
             throw new TelnetSessionException(e);
         }
@@ -76,7 +81,7 @@ public class TelnetChannel {
     {
         String content;
         if(cleanoutput)
-            content=bytesToString(this.rteStream.bufferCopy());
+            content=generateScreenDisplay(this.rteStream.bufferCopy());
         else
             content=new String(this.rteStream.bufferCopy());
 
@@ -182,17 +187,20 @@ public class TelnetChannel {
         }
         return false;
     }
+
+
     private RteStreamListener startListingPattern(final AtomicReference<String> result,final HashMap<Integer,String> pattern,final String Operator, final CountDownLatch signal) {
         final RteStreamListener listener= new RteStreamListener(){
             @Override
             public void received(final byte[] buffer) {
-                System.out.println(new String(buffer));
 
+                int linenumber=1;
                 if (CheckPatern(buffer,pattern,Operator)||CheckStringPatern(buffer,pattern,Operator))
                 {
+                    System.out.println("Found pattern"+pattern.toString()+ "in" + new String(buffer));
                     rteStream.bufferClear();
                     rteStream.removeListener(this);
-                    result.set(bytesToString(buffer));
+                    result.set(generateScreenDisplay(buffer));
                     signal.countDown();
 
                 }
@@ -276,6 +284,7 @@ public class TelnetChannel {
 
             if(this.rteStream.isAlive())
             {
+                System.out.println("Sending special  characters :" + specialText);
                 outputStream.write(sp.getAsciiCode());
                 if (sp.getAdditionalBytes().isPresent()) {
                     outputStream.write(sp.getAdditionalBytes().get());
@@ -305,6 +314,7 @@ public class TelnetChannel {
                 this.rteStream.bufferClear();
 
             if(this.rteStream.isAlive()) {
+                System.out.println("Sending special  characters :" + specialText);
                 outputStream.write(sp.getAsciiCode());
                 if (sp.getAdditionalBytes().isPresent()) {
                     outputStream.write(sp.getAdditionalBytes().get());
@@ -318,6 +328,15 @@ public class TelnetChannel {
         } catch (final IOException e) {
             throw new TelnetSessionException(e);
         }
+    }
+
+    public String readUntilNew(final HashMap<Integer,String> pattern,final String Operator, final int timeout) throws TelnetSessionException, RTETimeOutException {
+        if (!channel.isConnected()) throw new TelnetSessionException(new RuntimeException("Channel is already close"));
+
+        final CountDownLatch l = new CountDownLatch(1);
+        final AtomicReference<String> result = new AtomicReference<String>("");
+        final RteStreamListener listener = startListingPattern(result,pattern,Operator, l);
+        return waitForListeningPattern(listener,timeout, l, result);
     }
 
     public String readUntil(final HashMap<Integer,String> pattern,final String Operator, final int timeout) throws TelnetSessionException, RTETimeOutException {
@@ -344,5 +363,59 @@ public class TelnetChannel {
                 .replaceAll("\u001B\\)0","")
                 .replaceAll("\u000F7h","")
                 .replaceAll("\u000F","");
+    }
+
+
+    private String generateScreenDisplay(final byte[] buffer)
+    {
+        final String line = new String(buffer);
+        final String[] split = line.split("\u001b\\[");
+        final List<String> collect = Arrays.stream(split).collect(Collectors.toList());
+        StringBuilder output=new StringBuilder();
+        int linenumber=1;
+        int column=1;
+        for (final String s1 : collect)
+        {
+            if(s1.trim().isEmpty())
+                continue;
+
+            final int lineindex  = s1.indexOf(';');
+            final int col = s1.indexOf('f');
+            int lineref=Integer.parseInt(s1.substring(0, lineindex));
+            int colref;
+            String content;
+            if(col>0) {
+                colref = Integer.parseInt(s1.substring(lineindex + 1, col));
+                content= s1.substring(col+1);
+            }else {
+                colref = -1;
+                content="";
+            }
+
+            if( linenumber<lineref)
+            {
+                while(linenumber<lineref)
+                {
+                    output.append("\n");
+                    linenumber++;
+                    column=1;
+                }
+            }
+
+            if(colref>0) {
+                if (column < colref) {
+                    output.append(" ");
+                    column++;
+                }
+            }
+            output.append(content);
+            column=column+content.length();
+
+
+        }
+
+
+        return output.toString();
+
     }
 }

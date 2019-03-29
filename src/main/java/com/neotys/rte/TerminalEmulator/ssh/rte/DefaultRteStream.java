@@ -26,7 +26,6 @@ final class DefaultRteStream implements RteStream {
 	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 	private final Lock bufferLock = new ReentrantLock();
 	private final List<RteStreamListener> listeners = new CopyOnWriteArrayList<>();
-	
 	private DefaultRteStream(final RteSource source) {
 		super();
 		this.source = source;
@@ -91,7 +90,7 @@ final class DefaultRteStream implements RteStream {
 		result=CleanByteArray(read,NEW_SCREEN);
 		result=CleanByteArray(result,NEW_PARTSCREEN);
 		result=CleanByteArray(result,NEW_PART2SCREEN);
-
+		System.out.println(new String(read));
 		if(result.length!=read.length)
 			bufferClear();
 
@@ -107,6 +106,7 @@ final class DefaultRteStream implements RteStream {
 			index=index+toremove.length;
 
 			result = Arrays.copyOfRange(src, index, src.length);
+
 			return result;
 
 		}

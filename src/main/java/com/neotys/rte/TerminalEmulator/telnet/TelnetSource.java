@@ -11,13 +11,14 @@ import java.io.InputStream;
 /**
  * Created by hrexed on 25/07/18.
  */
-public class TelnetSource implements RteSource {
+final class TelnetSource implements RteSource {
     private final InputStream inputChannel;
     private final TelnetClient channel;
     private final byte[] buffer = new byte[1024];
 
     private TelnetSource(final TelnetClient channel) throws IOException {
         super();
+
         this.inputChannel = channel.getInputStream();
         this.channel = channel;
     }
@@ -26,13 +27,13 @@ public class TelnetSource implements RteSource {
         return new TelnetSource(channel);
     }
 
-   public TelnetClient GetClient()
+   public TelnetClient getClient()
    {
        return channel;
    }
     @Override
     public boolean isAlive() {
-        return channel.isConnected() && !channel.isAvailable();
+        return channel.isConnected() && channel.isAvailable() ;
     }
 
     @Override

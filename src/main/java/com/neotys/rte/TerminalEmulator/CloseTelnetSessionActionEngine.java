@@ -5,6 +5,7 @@ import com.neotys.extensions.action.ActionParameter;
 import com.neotys.extensions.action.engine.ActionEngine;
 import com.neotys.extensions.action.engine.Context;
 import com.neotys.extensions.action.engine.SampleResult;
+import com.neotys.rte.TerminalEmulator.telnet.TelnetChannel;
 import org.apache.commons.net.telnet.TelnetClient;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class CloseTelnetSessionActionEngine implements ActionEngine {
         final SampleResult sampleResult = new SampleResult();
         final StringBuilder requestBuilder = new StringBuilder();
         final StringBuilder responseBuilder = new StringBuilder();
-        TelnetClient channel;
+        TelnetChannel channel;
 
 
         for(ActionParameter parameter:parameters) {
@@ -35,14 +36,14 @@ public class CloseTelnetSessionActionEngine implements ActionEngine {
                     + CloseTelnetSessionAction.HOST + ".", null);
         }
 
-        channel = (TelnetClient) context.getCurrentVirtualUser().get(Host+"TelnetClient");
+        channel = (TelnetChannel) context.getCurrentVirtualUser().get(Host+"TelnetClient");
         if(channel != null)
         {
             if(channel.isConnected())
             {
                 try {
                     sampleResult.sampleStart();
-                    TelnetTerminalUtils.CloseSession(channel);
+                    channel.close();
                     appendLineToStringBuilder(responseBuilder, "Session Closed on "+Host);
 
                     sampleResult.sampleEnd();
