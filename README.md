@@ -1,4 +1,4 @@
-<p align="center"><img src="/screenshots/ascii-icon_logo.png" width="40%" alt="Dynatrace Logo" /></p>
+<p align="center"><img src="/screenshots/ascii-icon-icon.png" width="40%" alt="rte Logo" /></p>
 
 # RTE support for  for NeoLoad
 
