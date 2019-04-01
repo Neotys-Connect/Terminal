@@ -68,7 +68,7 @@ public final class SpecialKeysConverter implements Function<String, SpecialKeys>
 		switch (specialKeys.toUpperCase())
 		{
 		case CRLF:
-				return  SpecialKeys.of(Ascii.CR,Ascii.LF);
+			return  SpecialKeys.of(Ascii.CR,Ascii.LF);
 		case CR:
 			return  SpecialKeys.of(Ascii.CR);
 		case ESC:
