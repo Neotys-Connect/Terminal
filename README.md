@@ -192,6 +192,7 @@ Once installed, how to use in a given NeoLoad project:
 ## Parameters for SendSpecialKey and SendTelnetSpecialKey
 
 | Name             | Description |
+| -----            | ----- |
 | HOST      | Ip or Hostname of the  server |
 | KEY      | Special Key to send . Value posible : <ul><li>CR</li><li>ESC</li><li>DEL</li><li>BS</li><li>HT</li><li>LF</li><li>VT</li><li>CTRLA</li><li>CTRLB</li><li>CTRLC</li><li>CTRLD</li><li>CTRLE</li><li>CTRLF</li><li>CTRLG</li><li>CTRLH</li><li>CTRLI</li><li>CTRLJ</li><li>CTRLK</li><li>CTRLL</li><li>CTRLM</li><li>CTRLN</li><li>CTRLO</li><li>CTRLP</li><li>CTRLQ</li><li>CTRLR</li><li>CTRLS</li><li>CTRLT</li><li>CTRLU</li><li>CTRLV</li><li>CTRLW</li><li>CTRLX</li><li>CTRLY</li><li>CTRLZ</li><li>UP</li><li>DOWN</li><li>LEFT</li><li>RIGHT</li><li>CRLF</li></ul>|
 | TimeOut  | Timeout (in s) to  send the specialKey |
@@ -200,6 +201,7 @@ Once installed, how to use in a given NeoLoad project:
 ## Parameters for SendKey and SendTelnetKey
 
 | Name             | Description |
+| -----            | ----- |
 | HOST      | Ip or Hostname of the  server |
 | KEY      |  Keys to send  (a-zA-Z0-9 and other characters)|
 | NoWaitForEcho | the action won't wait to receive the confirmation from the server|
@@ -209,6 +211,7 @@ Once installed, how to use in a given NeoLoad project:
 ## Parameters for SendKeyandWaitFor and SendTelnetKeyandWaitFor
 
 | Name             | Description |
+| -----            | ----- |
 | HOST      | Ip or Hostname of the  server |
 | KEY      |  Keys to send  (a-zA-Z0-9 and other characters)|
 | CHECK1  |  Pattern 1 that the action will determine the last character of the expected screen |
