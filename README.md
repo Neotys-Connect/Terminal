@@ -1,4 +1,4 @@
-<p align="center"><img src="/screenshots/ascii-icon-icon.png" width="40%" alt="rte Logo" /></p>
+<p align="center"><img src="/screenshots/ascii-icon.png" width="40%" alt="rte Logo" /></p>
 
 # RTE support for  for NeoLoad
 
