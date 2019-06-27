@@ -1,11 +1,13 @@
 package com.neotys.rte.TerminalEmulator.ssh;
 
+import java.security.Security;
 import java.util.Properties;
 
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 final class SSHConnector {
 	static final SSHConnector INSTANCE = new SSHConnector();
@@ -16,6 +18,9 @@ final class SSHConnector {
 			final Session session = jsch.getSession(username, host, port);
 			Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");
+			config.put("kex","diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group-exchange-sha256");
+			//config.put("diffie-hellman-group-exchange-sha1","com.jcraft.jsch.DHGEX");
+			Security.insertProviderAt(new BouncyCastleProvider(), 1);
 			session.setConfig(config);
 			session.setPassword(password);
 

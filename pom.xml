@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
-            <version>0.1.54</version>
+            <version>0.1.55</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
         <dependency>
@@ -42,6 +42,12 @@
             <version>3.6</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.60</version>
+        </dependency>
 
     </dependencies>
     <build>
@@ -126,9 +132,20 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes> <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes> </filter>
+                            </filters>
                             <artifactSet>
                                 <excludes>
                                     <exclude>*:neotys-custom-action-api</exclude>
+                                    <exclude>*:neotys-custom-action-util</exclude>
+                                    <exclude>*:javax.ws.rs-api</exclude>
+                                    <exclude>*:slf4j-api</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>
