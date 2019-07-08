@@ -88,6 +88,14 @@ public final class SendSpecialKeyAction implements Action {
                 .append("\t\tDOWN : down narrow \n")
                 .append("\t\tRIGHT : rigth narrow \n")
                 .append("\t\tLEFT : left narrow \n")
+                .append("\t\tF1 : F1 \n")
+                .append("\t\tF2 : F2 \n")
+                .append("\t\t..... \n")
+                .append("\t\tF12 : F12 \n")
+                .append("\t\tSHIFTF1 : Shift + F1 \n")
+                .append("\t\tSHIFTF2 : Shift + F2 \n")
+                .append("\t\t..... \n")
+                .append("\t\tSHIFTF8 : Shift + F8 \n")
                 .append("TimeOut  : max duration in seconds to open the ssh connection \n")
                 .append("ClearBufferBefore  :  Optionnal  (default value : false), True: the action will clear the before sending keys \n");
 

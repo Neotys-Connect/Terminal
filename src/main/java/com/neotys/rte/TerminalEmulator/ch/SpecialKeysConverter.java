@@ -56,8 +56,16 @@ public final class SpecialKeysConverter implements Function<String, SpecialKeys>
 	public static final String F10="F10";
 	public static final String F11="F11";
 	public static final String F12="F12";
+	public static final String ShiftF1="SHIFTF1";
+	public static final String ShiftF2="SHIFTF2";
+	public static final String ShiftF3="SHIFTF3";
+	public static final String ShiftF4="SHIFTF4";
+	public static final String ShiftF5="SHIFTF5";
+	public static final String ShiftF6="SHIFTF6";
+	public static final String ShiftF7="SHIFTF7";
+	public static final String ShiftF8="SHIFTF8";
 	public static final String CRLF="CRLF";
-	public static String[] KEYS = {CR,CRLF,ESC,DEL,BS,HT,LF,VT,CTRLA,CTRLB,CTRLC,CTRLD,CTRLE,CTRLF,CTRLG,CTRLH,CTRLI,CTRLJ,CTRLH,CTRLM,CTRLN,CTRLO,CTRLP,CTRLQ,CTRLR,CTRLS,CTRLT,CTRLU,CTRLV,CTRLW,CTRLX,CTRLY,CTRLZ,UP,DOWN,LEFT,RIGHT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12};
+	public static String[] KEYS = {ShiftF1,ShiftF2,ShiftF3,ShiftF4,ShiftF5,ShiftF6,ShiftF7,ShiftF8,CR,CRLF,ESC,DEL,BS,HT,LF,VT,CTRLA,CTRLB,CTRLC,CTRLD,CTRLE,CTRLF,CTRLG,CTRLH,CTRLI,CTRLJ,CTRLH,CTRLM,CTRLN,CTRLO,CTRLP,CTRLQ,CTRLR,CTRLS,CTRLT,CTRLU,CTRLV,CTRLW,CTRLX,CTRLY,CTRLZ,UP,DOWN,LEFT,RIGHT,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12};
 
 	public SpecialKeysConverter() {
 	}
@@ -146,19 +154,35 @@ public final class SpecialKeysConverter implements Function<String, SpecialKeys>
 		case F5:
 			return  SpecialKeys.of(Ascii.ESC,"[15~".getBytes());
 		case F6:
-			return  SpecialKeys.of(Ascii.ESC,"[16~".getBytes());
-		case F7:
 			return  SpecialKeys.of(Ascii.ESC,"[17~".getBytes());
-		case F8:
+		case F7:
 			return  SpecialKeys.of(Ascii.ESC,"[18~".getBytes());
-		case F9:
+		case F8:
 			return  SpecialKeys.of(Ascii.ESC,"[19~".getBytes());
-		case F10:
+		case F9:
 			return  SpecialKeys.of(Ascii.ESC,"[20~".getBytes());
-		case F11:
+		case F10:
 			return  SpecialKeys.of(Ascii.ESC,"[21~".getBytes());
+		case F11:
+			return  SpecialKeys.of(Ascii.ESC,"[23~".getBytes());
 		case F12:
-			return  SpecialKeys.of(Ascii.ESC,"[22~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[24~".getBytes());
+		case ShiftF1:
+			return  SpecialKeys.of(Ascii.ESC,"[25~".getBytes());
+		case ShiftF2:
+			return  SpecialKeys.of(Ascii.ESC,"[26~".getBytes());
+		case ShiftF3:
+			return  SpecialKeys.of(Ascii.ESC,"[28~".getBytes());
+		case ShiftF4:
+			return  SpecialKeys.of(Ascii.ESC,"[29~".getBytes());
+		case ShiftF5:
+			return  SpecialKeys.of(Ascii.ESC,"[31~".getBytes());
+		case ShiftF6:
+			return  SpecialKeys.of(Ascii.ESC,"[32~".getBytes());
+		case ShiftF7:
+			return  SpecialKeys.of(Ascii.ESC,"[33~".getBytes());
+		case ShiftF8:
+			return  SpecialKeys.of(Ascii.ESC,"[34~".getBytes());
 		default:
 			switch (specialKeys.toUpperCase())
 			{
