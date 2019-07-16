@@ -144,45 +144,45 @@ public final class SpecialKeysConverter implements Function<String, SpecialKeys>
 		case CTRLZ:
 			return  SpecialKeys.of(Ascii.SUB);
 		case F1:
-			return  SpecialKeys.of(Ascii.ESC,"[11~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[M".getBytes());
 		case F2:
-			return  SpecialKeys.of(Ascii.ESC,"[12~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[N".getBytes());
 		case F3:
-			return  SpecialKeys.of(Ascii.ESC,"[13~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[O".getBytes());
 		case F4:
-			return  SpecialKeys.of(Ascii.ESC,"[14~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[P".getBytes());
 		case F5:
-			return  SpecialKeys.of(Ascii.ESC,"[15~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[Q".getBytes());
 		case F6:
-			return  SpecialKeys.of(Ascii.ESC,"[17~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[R".getBytes());
 		case F7:
-			return  SpecialKeys.of(Ascii.ESC,"[18~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[S".getBytes());
 		case F8:
-			return  SpecialKeys.of(Ascii.ESC,"[19~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[T".getBytes());
 		case F9:
-			return  SpecialKeys.of(Ascii.ESC,"[20~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[U".getBytes());
 		case F10:
-			return  SpecialKeys.of(Ascii.ESC,"[21~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[V".getBytes());
 		case F11:
-			return  SpecialKeys.of(Ascii.ESC,"[23~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[W".getBytes());
 		case F12:
-			return  SpecialKeys.of(Ascii.ESC,"[24~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[X".getBytes());
 		case ShiftF1:
-			return  SpecialKeys.of(Ascii.ESC,"[25~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[Y".getBytes());
 		case ShiftF2:
-			return  SpecialKeys.of(Ascii.ESC,"[26~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[Z".getBytes());
 		case ShiftF3:
-			return  SpecialKeys.of(Ascii.ESC,"[28~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[a".getBytes());
 		case ShiftF4:
-			return  SpecialKeys.of(Ascii.ESC,"[29~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[b".getBytes());
 		case ShiftF5:
-			return  SpecialKeys.of(Ascii.ESC,"[31~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[c".getBytes());
 		case ShiftF6:
-			return  SpecialKeys.of(Ascii.ESC,"[32~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[d".getBytes());
 		case ShiftF7:
-			return  SpecialKeys.of(Ascii.ESC,"[33~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[e".getBytes());
 		case ShiftF8:
-			return  SpecialKeys.of(Ascii.ESC,"[34~".getBytes());
+			return  SpecialKeys.of(Ascii.ESC,"[f".getBytes());
 		default:
 			switch (specialKeys.toUpperCase())
 			{
