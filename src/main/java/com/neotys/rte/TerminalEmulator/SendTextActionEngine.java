@@ -107,7 +107,7 @@ public class SendTextActionEngine implements ActionEngine    {
                     {
 
                         sampleResult.sampleStart();
-                        final String output = channel.sendKeys(Key, TimeOut,NoWaitForEcho,ClearBufferBefore);
+                        final String output = channel.  sendKeys(Key, TimeOut,NoWaitForEcho,ClearBufferBefore);
                         sampleResult.sampleEnd();
                         appendLineToStringBuilder(responseBuilder, output);
 

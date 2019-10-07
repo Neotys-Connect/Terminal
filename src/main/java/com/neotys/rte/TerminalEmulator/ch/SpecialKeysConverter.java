@@ -187,13 +187,13 @@ public final class SpecialKeysConverter implements Function<String, SpecialKeys>
 			switch (specialKeys.toUpperCase())
 			{
 			case UP:
-				return SpecialKeys.of(Ascii.ESC, "[A".getBytes());
+				return SpecialKeys.of(Ascii.ESC, "OA".getBytes());
 			case DOWN:
-				return SpecialKeys.of(Ascii.ESC, "[B".getBytes());
+				return SpecialKeys.of(Ascii.ESC, "OB".getBytes());
 			case LEFT:
-				return SpecialKeys.of(Ascii.ESC, "[D".getBytes());
+				return SpecialKeys.of(Ascii.ESC, "OD".getBytes());
 			case RIGHT:
-				return SpecialKeys.of(Ascii.ESC, "[C".getBytes());
+				return SpecialKeys.of(Ascii.ESC, "OC".getBytes());
 			default:
 				return SpecialKeys.of(Ascii.ESC);
 			}
