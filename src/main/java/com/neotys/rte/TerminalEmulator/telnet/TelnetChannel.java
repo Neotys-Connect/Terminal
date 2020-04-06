@@ -13,6 +13,8 @@ import org.apache.commons.net.telnet.TelnetClient;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -195,13 +197,18 @@ public class TelnetChannel {
             public void received(final byte[] buffer) {
 
                 int linenumber=1;
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+                LocalDateTime now = LocalDateTime.now();
+               System.out.println(dtf.format(now) + " - Received characters :"+new String(buffer));
                 if (CheckPatern(buffer,pattern,Operator)||CheckStringPatern(buffer,pattern,Operator))
                 {
-                    System.out.println("Found pattern"+pattern.toString()+ "in" + new String(buffer));
+                    now = LocalDateTime.now();
+                    System.out.println(dtf.format(now)+ "- Found pattern"+pattern.toString()+ "in" + new String(buffer));
                     rteStream.bufferClear();
                     rteStream.removeListener(this);
                     result.set(generateScreenDisplay(buffer));
                     signal.countDown();
+
 
                 }
 
@@ -381,35 +388,56 @@ public class TelnetChannel {
 
             final int lineindex  = s1.indexOf(';');
             final int col = s1.indexOf('f');
-            int lineref=Integer.parseInt(s1.substring(0, lineindex));
-            int colref;
-            String content;
-            if(col>0) {
-                colref = Integer.parseInt(s1.substring(lineindex + 1, col));
-                content= s1.substring(col+1);
-            }else {
-                colref = -1;
-                content="";
-            }
+            if(lineindex>0) {
+                int lineref = Integer.parseInt(s1.substring(0, lineindex));
+                int colref;
+                String content;
+                if (col > 0) {
+                    colref = Integer.parseInt(s1.substring(lineindex + 1, col));
+                    content = s1.substring(col + 1);
+                } else {
+                    int colour=s1.indexOf('m');
+                    if(colour>0)
+                    {
+                        content=s1.substring(colour + 1);
+                        colref=1;
 
-            if( linenumber<lineref)
+                    }
+                    else
+                    {
+                        colref = -1;
+                        content = "";
+                    }
+
+                }
+
+                if (linenumber < lineref) {
+                    while (linenumber < lineref) {
+                        output.append("\n");
+                        linenumber++;
+                        column = 1;
+                    }
+                }
+
+                if (colref > 0) {
+                    if (column < colref) {
+                        output.append(" ");
+                        column++;
+                    }
+                }
+                output.append(content);
+                column = column + content.length();
+            }
+            else
             {
-                while(linenumber<lineref)
-                {
-                    output.append("\n");
-                    linenumber++;
-                    column=1;
+                int colour=s1.indexOf('m');
+                if(colour>0) {
+                    output.append(s1.substring(colour + 1));
+                }
+                else {
+                    output.append(s1);
                 }
             }
-
-            if(colref>0) {
-                if (column < colref) {
-                    output.append(" ");
-                    column++;
-                }
-            }
-            output.append(content);
-            column=column+content.length();
 
 
         }

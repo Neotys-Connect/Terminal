@@ -2,6 +2,7 @@ package com.neotys.rte.TerminalEmulator.ssh;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 
 import com.jcraft.jsch.Channel;
 import com.neotys.rte.TerminalEmulator.ssh.rte.RteSource;
@@ -27,7 +28,7 @@ final class SshRteSource implements RteSource {
 	}
 	
 	@Override
-	public byte[] read() throws IOException {
+	public byte[] read() throws IOException, InterruptedIOException {
 		final int read = inputChannel.read(buffer, 0, buffer.length);
 		if(read==-1)
 			return null;

@@ -1,6 +1,7 @@
 package com.neotys.rte.TerminalEmulator.ssh;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -187,8 +188,8 @@ public final class SSHChannel {
 		final RteStreamListener listener= new RteStreamListener(){
 			@Override
 			public void received(final byte[] buffer) {
-				System.out.println(new String(buffer));
 
+				System.out.println(new String(buffer));
 				if (CheckPatern(buffer,pattern,Operator)||CheckStringPatern(buffer,pattern,Operator))
 				{
 					rteStream.bufferClear();
@@ -211,8 +212,11 @@ public final class SSHChannel {
 				rteStream.removeListener(listener);
 				throw new RTETimeOutException("Action has reach the timeout: "+ Integer.toString(timeout));
 			}
-		} catch (InterruptedException e) {
 		}
+
+		catch (InterruptedException e) {
+		}
+
 		return result.get();
 	}
 
